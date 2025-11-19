@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zodiaque Doré – Astro</title>
+    <title>Accueil – Zodiaque Doré</title>
 
     <!-- Polices Google -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -23,6 +23,13 @@
             background-color: var(--fond);
             color: var(--texte);
             font-family: "Lato", sans-serif;
+            opacity: 0;
+            animation: fadeIn 1.2s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* BANDEAU */
@@ -39,17 +46,29 @@
             object-fit: cover;
         }
 
+        /* Voile doré */
+        .bandeau::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(215, 190, 130, 0.25);
+        }
+
+        /* Titre du bandeau */
         .titre-bandeau {
-    position: absolute;
-    bottom: 60px; /* remonte le titre dans le bandeau */
-    left: 40%;
-    transform: translateX(-50%);
-    color: #2E2E2E; /* gris foncé */
-    text-shadow: 0 0 6px rgba(255,255,255,0.7); /* halo léger pour détacher le texte */
-    font-family: "Playfair Display", serif;
-    font-size: 36px;
-    font-weight: 600;
-}
+            position: absolute;
+            bottom: 60px;
+            left: 48%;
+            transform: translateX(-50%);
+            color: #2E2E2E;
+            text-shadow: 0 0 6px rgba(255,255,255,0.7);
+            font-family: "Playfair Display", serif;
+            font-size: 36px;
+            font-weight: 600;
+        }
 
         /* MENU */
         nav {
@@ -73,60 +92,38 @@
             color: var(--or-fonce);
         }
 
-        /* SECTIONS */
-        section {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 0 20px;
+        /* CONTENU ACCUEIL */
+        .accueil {
             text-align: center;
+            margin: 80px auto;
+            max-width: 800px;
         }
 
-        h2 {
-            font-family: "Playfair Display", serif;
-            font-size: 32px;
+        .icone-soleil {
+            font-size: 50px;
+            color: var(--or-fonce);
             margin-bottom: 20px;
-            color: var(--bleu-nuit);
         }
 
-        p {
-            font-size: 18px;
-            line-height: 1.6;
+        .separator {
+            width: 80px;
+            height: 2px;
+            background-color: var(--or-fonce);
+            margin: 20px auto 40px;
         }
 
-        /* CARTES DES SIGNES */
-        .signes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-top: 40px;
-        }
-
-        .carte-signe {
-            padding: 20px;
-            border: 1px solid var(--or);
-            border-radius: 10px;
-            background: white;
-            transition: 0.3s;
-        }
-
-        .carte-signe:hover {
-            background: var(--or);
-            color: white;
-            cursor: pointer;
-        }
-
-        .carte-signe h3 {
+        .accueil h2 {
             font-family: "Playfair Display", serif;
-            margin-bottom: 10px;
-            font-size: 22px;
+            font-size: 36px;
+            color: var(--bleu-nuit);
+            margin-bottom: 20px;
         }
 
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 40px;
-            font-size: 14px;
-            color: #666;
+        .accueil p {
+            font-size: 20px;
+            line-height: 1.7;
+            font-family: "Lato", sans-serif;
+            color: var(--texte);
         }
     </style>
 </head>
@@ -136,51 +133,35 @@
     <!-- Bandeau -->
     <div class="bandeau">
         <img src="header.jpg" alt="Bandeau astrologique">
-        <div class="titre-bandeau">Au fil du zodiaque</div>
+        <div class="titre-bandeau">Zodiaque Doré</div>
     </div>
 
     <!-- Menu -->
     <nav>
-    <a href="index.html">Accueil</a>
-    <a href="#">Signes</a>
-    <a href="planetes.html">Planètes</a>
-    <a href="#">Maisons</a>
-    <a href="#">À propos</a>
-</nav>
+        <a href="index.html">Accueil</a>
+        <a href="signes.html">Signes</a>
+        <a href="planetes.html">Planètes</a>
+        <a href="#">Maisons</a>
+        <a href="#">À propos</a>
+    </nav>
 
-    <!-- Section d'accueil -->
-    <section>
+    <!-- CONTENU ACCUEIL -->
+    <section class="accueil">
+
+        <!-- Icône Soleil -->
+        <div class="icone-soleil">☉</div>
+
         <h2>Bienvenue dans votre espace astrologique</h2>
+
+        <!-- Ligne dorée -->
+        <div class="separator"></div>
+
         <p>
-            Un lieu où le zodiaque devient clair, élégant et vivant — un espace pour comprendre 
-            les signes, les planètes et les énergies qui façonnent votre carte du ciel.
+            Un lieu où le zodiaque devient clair, élégant et vivant —  
+            un espace pour comprendre les signes, les planètes et les énergies  
+            qui façonnent votre carte du ciel.
         </p>
     </section>
-
-    <!-- Cartes des signes -->
-    <section>
-        <h2>Les 12 signes du zodiaque</h2>
-
-        <div class="signes">
-            <div class="carte-signe"><h3>♈ Bélier</h3><p>Élan – Courage</p></div>
-            <div class="carte-signe"><h3>♉ Taureau</h3><p>Stabilité – Sensualité</p></div>
-            <div class="carte-signe"><h3>♊ Gémeaux</h3><p>Curiosité – Échange</p></div>
-            <div class="carte-signe"><h3>♋ Cancer</h3><p>Sensibilité – Protection</p></div>
-            <div class="carte-signe"><h3>♌ Lion</h3><p>Rayonnement – Création</p></div>
-            <div class="carte-signe"><h3>♍ Vierge</h3><p>Précision – Service</p></div>
-            <div class="carte-signe"><h3>♎ Balance</h3><p>Harmonie – Relation</p></div>
-            <div class="carte-signe"><h3>♏ Scorpion</h3><p>Intensité – Transformation</p></div>
-            <div class="carte-signe"><h3>♐ Sagittaire</h3><p>Expansion – Vision</p></div>
-            <div class="carte-signe"><h3>♑ Capricorne</h3><p>Structure – Maîtrise</p></div>
-            <div class="carte-signe"><h3>♒ Verseau</h3><p>Liberté – Idées</p></div>
-            <div class="carte-signe"><h3>♓ Poissons</h3><p>Inspiration – Fusion</p></div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        Site Astrologique – Zodiaque Doré • Créé avec douceur 🌙
-    </footer>
 
 </body>
 </html>
