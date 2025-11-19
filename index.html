@@ -12,7 +12,7 @@
         :root {
             --fond: #FAF8F5;
             --texte: #2E2E2E;
-            --or: #D7BE82;
+            --or: #DD7BE82;
             --or-fonce: #B88E4A;
             --bleu-nuit: #1C2331;
         }
@@ -60,8 +60,8 @@
         /* Titre du bandeau */
         .titre-bandeau {
             position: absolute;
-            bottom: 65px; /* ajusté pour un meilleur placement */
-            left: 48%;
+            bottom: 65px;
+            left: 50%;
             transform: translateX(-50%);
             color: #2E2E2E;
             text-shadow: 0 0 6px rgba(255,255,255,0.7);
@@ -96,7 +96,7 @@
         /* CONTENU ACCUEIL */
         .accueil {
             text-align: center;
-            margin: 60px auto;   /* remonté */
+            margin: 60px auto;
             max-width: 800px;
         }
 
@@ -104,35 +104,36 @@
             width: 80px;
             height: 2px;
             background-color: var(--or-fonce);
-            margin: 20px auto 40px;
+            margin: 20px auto 35px;
         }
 
         .accueil h2 {
             font-family: "Playfair Display", serif;
             font-size: 36px;
             color: var(--bleu-nuit);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .accueil p {
             font-size: 20px;
-            margin-top: 10px;
             line-height: 1.7;
             font-family: "Lato", sans-serif;
             color: var(--texte);
+            margin-top: 5px;
         }
+
         /* IMAGE D'ACCUEIL */
         .image-accueil {
             margin: 30px auto 0;
             text-align: center;
-       }
+        }
 
-       .image-accueil img {
-           width: 30%;        /* <-- MODIFIE CETTE VALEUR POUR LA TAILLE */
-           max-width: 350px;  /* limite en pixels */
-           border-radius: 10px;
-           box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-       }
+        .image-accueil img {
+            width: 40%;
+            max-width: 450px;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(215,190,130,0.55); /* halo doré élégant */
+        }
 
     </style>
 </head>
@@ -167,11 +168,13 @@
             un espace pour comprendre les signes, les planètes et les énergies  
             qui façonnent votre carte du ciel.
         </p>
+
+        <!-- IMAGE AVEC HALO DORÉ -->
         <div class="image-accueil">
              <img src="Theme.jpg" alt="Illustration astrologique">
         </div>
+
     </section>
 
 </body>
 </html>
-
