@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil – Zodiaque Doré</title>
+    <title>Accueil – Au fil du Zodiaque</title>
 
     <!-- Polices Google -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -60,14 +60,15 @@
         /* Titre du bandeau */
         .titre-bandeau {
             position: absolute;
-            bottom: 60px;
-            left: 48%;
+            bottom: 65px; /* ajusté pour un meilleur placement */
+            left: 50%;
             transform: translateX(-50%);
             color: #2E2E2E;
             text-shadow: 0 0 6px rgba(255,255,255,0.7);
             font-family: "Playfair Display", serif;
             font-size: 36px;
             font-weight: 600;
+            letter-spacing: 1px;
         }
 
         /* MENU */
@@ -95,14 +96,8 @@
         /* CONTENU ACCUEIL */
         .accueil {
             text-align: center;
-            margin: 80px auto;
+            margin: 60px auto;   /* remonté */
             max-width: 800px;
-        }
-
-        .icone-soleil {
-            font-size: 50px;
-            color: var(--or-fonce);
-            margin-bottom: 20px;
         }
 
         .separator {
@@ -133,7 +128,7 @@
     <!-- Bandeau -->
     <div class="bandeau">
         <img src="header.jpg" alt="Bandeau astrologique">
-        <div class="titre-bandeau">Zodiaque Doré</div>
+        <div class="titre-bandeau">Au fil du Zodiaque</div>
     </div>
 
     <!-- Menu -->
@@ -147,9 +142,6 @@
 
     <!-- CONTENU ACCUEIL -->
     <section class="accueil">
-
-        <!-- Icône Soleil -->
-        <div class="icone-soleil">☉</div>
 
         <h2>Bienvenue dans votre espace astrologique</h2>
 
@@ -165,3 +157,4 @@
 
 </body>
 </html>
+
