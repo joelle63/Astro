@@ -12,7 +12,7 @@
         :root {
             --fond: #FAF8F5;
             --texte: #2E2E2E;
-            --or: #DD7BE82;
+            --or: #D7BE82;
             --or-fonce: #B88E4A;
             --bleu-nuit: #1C2331;
         }
@@ -57,7 +57,7 @@
             background: rgba(215, 190, 130, 0.25);
         }
 
-        /* Titre du bandeau */
+        /* Titre sur le bandeau — CENTRÉ PARFAITEMENT */
         .titre-bandeau {
             position: absolute;
             bottom: 65px;
@@ -69,6 +69,8 @@
             font-size: 36px;
             font-weight: 600;
             letter-spacing: 1px;
+            text-align: center;
+            width: 100%;
         }
 
         /* MENU */
@@ -122,19 +124,6 @@
             margin-top: 5px;
         }
 
-        /* IMAGE D'ACCUEIL */
-        .image-accueil {
-            margin: 30px auto 0;
-            text-align: center;
-        }
-
-        .image-accueil img {
-            width: 40%;
-            max-width: 450px;
-            border-radius: 12px;
-            box-shadow: 0 0 35px rgba(215,190,130,0.65);; /* halo doré élégant */
-        }
-
     </style>
 </head>
 
@@ -160,7 +149,6 @@
 
         <h2>Bienvenue dans votre espace astrologique</h2>
 
-        <!-- Ligne dorée -->
         <div class="separator"></div>
 
         <p>
@@ -169,12 +157,8 @@
             qui façonnent votre carte du ciel.
         </p>
 
-        <!-- IMAGE AVEC HALO DORÉ -->
-        <div class="image-accueil">
-             <img src="Theme.jpg" alt="Illustration astrologique">
-        </div>
-
     </section>
 
 </body>
 </html>
+
