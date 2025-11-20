@@ -51,7 +51,7 @@
         .titre-bandeau {
             position: absolute;
             bottom: 65px;
-            left: 49%;
+            left: 47%;
             transform: translateX(-50%);
             color: #2E2E2E;
             text-shadow: 0 0 6px rgba(255,255,255,0.7);
@@ -107,42 +107,45 @@
         }
 
         /* 🌟 Carte élégante premium */
-.carte-planete {
-    padding: 22px;
-    background: #FBD78D; /* BLEU NUIT du bandeau */
-    border: 1px solid #D7BE82; /* Doré léger */
-    border-radius: 14px;
+        .carte-planete {
+            padding: 22px;
+            background: #FBD78D;
+            border: 1px solid #D7BE82;
+            border-radius: 14px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.20);
+            transition: all 0.3s ease;
+            color: #EAD9B6;
+        }
 
-    box-shadow: 0 6px 14px rgba(0,0,0,0.20);
-    transition: all 0.3s ease;
+        .carte-planete h3,
+        .carte-planete p {
+            color: #2E2E2E;
+        }
 
-    color: #EAD9B6; /* Doré très léger, élégant */
-}
+        /* 🌟 SURVOL AMÉLIORÉ */
+        .carte-planete:hover {
+            background: #FFE3A8;
+            transform: translateY(-6px);
+            box-shadow:
+                0 10px 20px rgba(0,0,0,0.22),
+                0 0 12px rgba(215,190,130,0.45);
+            border-color: #D7BE82;
+            cursor: pointer;
+            color: #2E2E2E;
+        }
 
-.carte-planete h3,
-.carte-planete p {
-    color: #2E2E2E; /* doré doux */
-}
-
-.carte-planete:hover {
-    background: #FFE3A8; /* plus clair dans ta palette */
-    transform: translateY(-6px);
-
-    box-shadow:
-        0 10px 20px rgba(0,0,0,0.22),
-        0 0 12px rgba(215,190,130,0.45); /* halo doré doux */
-
-    border-color: #D7BE82;
-    cursor: pointer;
-
-    color: #2E2E2E; /* texte lisible */
-}
-
+        /* 🌟 AJOUT DU GRAS (UNIQUEMENT CE QUE TU AS DEMANDÉ) */
         .carte-planete h3 {
             font-family: "Playfair Display", serif;
             margin-bottom: 10px;
             font-size: 22px;
+            font-weight: 700;  /* PLUS GRAS */
         }
+
+        .carte-planete p {
+            font-weight: 600; /* PLUS GRAS */
+        }
+
     </style>
 </head>
 
