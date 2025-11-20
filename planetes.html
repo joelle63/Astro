@@ -115,6 +115,8 @@
             box-shadow: 0 6px 14px rgba(0,0,0,0.20);
             transition: all 0.3s ease;
             color: #EAD9B6;
+            text-decoration: none; /* important pour lien invisible */
+            display: block;
         }
 
         .carte-planete h3,
@@ -134,16 +136,16 @@
             color: #2E2E2E;
         }
 
-        /* 🌟 AJOUT DU GRAS (UNIQUEMENT CE QUE TU AS DEMANDÉ) */
+        /* 🌟 GRAS */
         .carte-planete h3 {
             font-family: "Playfair Display", serif;
             margin-bottom: 10px;
             font-size: 22px;
-            font-weight: 700;  /* PLUS GRAS */
+            font-weight: 700;
         }
 
         .carte-planete p {
-            font-weight: 600; /* PLUS GRAS */
+            font-weight: 600;
         }
 
     </style>
@@ -172,7 +174,13 @@
         <p>Les planètes représentent les fonctions psychologiques essentielles, chacune exprimant une énergie spécifique.</p>
 
         <div class="planetes">
-            <div class="carte-planete"><h3>☉ Soleil</h3><p>Volonté — Identité</p></div>
+
+            <!-- ⭐ CARTE SOLEIL AVEC LIEN ⭐ -->
+            <a href="soleil.html" class="carte-planete">
+                <h3>☉ Soleil</h3>
+                <p>Volonté — Identité</p>
+            </a>
+
             <div class="carte-planete"><h3>☾ Lune</h3><p>Émotions — Mémoire</p></div>
             <div class="carte-planete"><h3>☿ Mercure</h3><p>Esprit — Communication</p></div>
             <div class="carte-planete"><h3>♀ Vénus</h3><p>Affect — Harmonie</p></div>
@@ -182,8 +190,10 @@
             <div class="carte-planete"><h3>♅ Uranus</h3><p>Liberté — Éveil</p></div>
             <div class="carte-planete"><h3>♆ Neptune</h3><p>Inspiration — Fusion</p></div>
             <div class="carte-planete"><h3>♇ Pluton</h3><p>Transformation — Pulsions</p></div>
+
         </div>
     </section>
 
 </body>
 </html>
+
