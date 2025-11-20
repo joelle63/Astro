@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technique – Au fil du Zodiaque</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fond: #FAF8F5;
+            --texte: #2E2E2E;
+            --or: #D7BE82;
+            --or-fonce: #B88E4A;
+            --bleu-nuit: #1C2331;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--fond);
+            color: var(--texte);
+            font-family: "Lato", sans-serif;
+        }
+
+        /* BANDEAU */
+        .bandeau {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bandeau img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bandeau::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(215, 190, 130, 0.25);
+        }
+
+        .titre-bandeau {
+            position: absolute;
+            bottom: 65px;
+            left: 48%;
+            transform: translateX(-50%);
+            color: #2E2E2E;
+            font-family: "Playfair Display", serif;
+            font-size: 33px;
+            font-weight: 600;
+        }
+
+        /* MENU */
+        nav {
+            background-color: var(--fond);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--or);
+        }
+
+        nav a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--bleu-nuit);
+        }
+
+        nav a:hover {
+            color: var(--or-fonce);
+        }
+
+        /* CONTENU */
+        section {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 85%;
+            padding: 14px;
+            font-size: 18px;
+            border: 1px solid var(--or);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: var(--or-fonce);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #9C7A32;
+            transform: translateY(-3px);
+        }
+
+        #resultat {
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--bleu-nuit);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BANDEAU -->
+    <div class="bandeau">
+        <img src="header.jpg" alt="Bandeau astrologique">
+        <div class="titre-bandeau">Au fil du Zodiaque</div>
+    </div>
+
+    <!-- MENU -->
+    <nav>
+        <a href="index.html">Accueil</a>
+        <a href="signes.html">Signes</a>
+        <a href="planetes.html">Planètes</a>
+        <a href="#">Maisons</a>
+        <a href="#">À propos</a>
+    </nav>
+
+    <!-- CONTENU -->
+    <section>
+        <h2>🔧 Zone technique</h2>
+        <p>Saisis une ville — je te retourne sa latitude et longitude.</p>
+
+        <input id="ville" type="text" placeholder="Ex : Paris, Grenoble, Montluçon…">
+
+        <button onclick="chercher()">Trouver coordonnées</button>
+
+        <div id="resultat"></div>
+    </section>
+
+    <script>
+        async function chercher() {
+            const ville = document.getElementById("ville").value.trim();
+            const resultDiv = document.getElementById("resultat");
+
+            if (!ville) {
+                resultDiv.textContent = "❗ Merci de saisir une ville.";
+                return;
+            }
+
+            // Appel à l’API libre Open-Meteo (géocodage)
+            const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(ville)}&count=1&language=fr&format=json`;
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (!data.results || data.results.length === 0) {
+                resultDiv.textContent = "Ville introuvable.";
+                return;
+            }
+
+            const r = data.results[0];
+
+            resultDiv.innerHTML = `
+                📍 <strong>${r.name}</strong>, ${r.country}<br><br>
+                🌐 Latitude : <strong>${r.latitude}</strong><br>
+                🌐 Longitude : <strong>${r.longitude}</strong>
+            `;
+        }
+    </script>
+
+</body>
+</html>
