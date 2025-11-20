@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☉ Soleil – Au fil du Zodiaque</title>
+    <title>Soleil – Au fil du Zodiaque</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -56,10 +56,8 @@
             color: #2E2E2E;
             text-shadow: 0 0 6px rgba(255,255,255,0.7);
             font-family: "Playfair Display", serif;
-            font-size: 36px;
+            font-size: 33px;
             font-weight: 600;
-            width: 100%;
-            text-align: center;
         }
 
         /* MENU */
@@ -83,60 +81,57 @@
             color: var(--or-fonce);
         }
 
-        /* CONTENU */
+        /* CONTENU PLANÈTE */
         section {
             max-width: 900px;
             margin: 60px auto;
             padding: 0 20px;
-        }
-
-        .titre-planete {
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .titre-planete h1 {
+        h2 {
             font-family: "Playfair Display", serif;
-            font-size: 40px;
-            color: var(--bleu-nuit);
+            font-size: 36px;
             margin-bottom: 10px;
+            color: var(--bleu-nuit);
         }
 
-        .titre-planete h1 .symbole {
-            font-size: 48px;
-            margin-right: 12px;
-        }
-
+        /* ⭐ Nouveau style du sous-titre ⭐ */
         .sous-titre {
-            font-size: 20px;
-            color: var(--or-fonce);
-            text-align: center;
-            margin-bottom: 40px;
+            font-family: "Lato", sans-serif;
+            font-size: 22px;            /* légèrement agrandi */
+            font-weight: 600;
+            color: #9C7A32;             /* doré foncé lisible */
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
 
-        .texte-placeholder {
-            font-size: 18px;
+        /* ⭐ Petite ligne décorative ⭐ */
+        .decor {
+            width: 80px;
+            height: 2px;
+            background-color: #9C7A32;
+            margin: 0 auto 25px;
+        }
+
+        .texte {
+            font-size: 19px;
             line-height: 1.7;
-            color: var(--texte);
-            background: white;
-            border: 1px solid var(--or);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: justify;
+            margin-top: 20px;
         }
-
     </style>
 </head>
 
 <body>
 
-    <!-- Bandeau -->
+    <!-- BANDEAU -->
     <div class="bandeau">
         <img src="header.jpg" alt="Bandeau astrologique">
         <div class="titre-bandeau">Au fil du Zodiaque</div>
     </div>
 
-    <!-- Menu -->
+    <!-- MENU -->
     <nav>
         <a href="index.html">Accueil</a>
         <a href="signes.html">Signes</a>
@@ -147,38 +142,18 @@
 
     <!-- CONTENU -->
     <section>
+        <h2>☉ Le Soleil</h2>
+        <div class="sous-titre">Volonté — Identité</div>
+        <div class="decor"></div>
 
-        <div class="titre-planete">
-            <h1><span class="symbole">☉</span> Soleil</h1>
-        </div>
-
-        <div class="sous-titre">
-            Volonté — Identité
-        </div>
-
-        <div class="texte-placeholder">
-            Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir :
-ce que nous intégrerons progressivement au cours de notre vie.
-
-
-Il représente : 
-Notre motivation et notre vitalité
-Nos ambitions
-Notre détermination et la confiance que nous avons en nous
-Notre volonté
-Le sens que nous donnons à notre vie
-
-
-Le signe dans lequel se trouve le soleil indique comment il va s’exprimer, de quelle énergie il va se colorer.
-
-
-La maison solaire montre dans quel domaine il nous est le plus naturel et le plus nécessaire d’être nous-même.
-
-            <br><br>
-            Ce texte n’est qu’un espace réservé pour l’instant.
-        </div>
-
+        <p class="texte">
+            Ici, vous pourrez écrire votre texte sur le Soleil : sa signification, sa dynamique,
+            son rôle dans un thème natal, et la manière dont il éclaire le chemin de l’individu.
+            Ce paragraphe sert simplement de repère visuel pour la mise en page.
+        </p>
     </section>
 
 </body>
+</html>
+
 </html>
