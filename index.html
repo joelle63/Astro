@@ -46,7 +46,6 @@
             object-fit: cover;
         }
 
-        /* Voile doré */
         .bandeau::after {
             content: "";
             position: absolute;
@@ -57,7 +56,6 @@
             background: rgba(215, 190, 130, 0.25);
         }
 
-        /* Titre sur le bandeau — CENTRÉ PARFAITEMENT */
         .titre-bandeau {
             position: absolute;
             bottom: 65px;
@@ -124,6 +122,23 @@
             margin-top: 5px;
         }
 
+        /* ⭐ Bouton Zone technique */
+        .btn-technique {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--or-fonce);
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.3s;
+            margin: 70px auto 40px;
+        }
+
+        .btn-technique:hover {
+            background-color: #9C7A32;
+            transform: translateY(-3px);
+        }
     </style>
 </head>
 
@@ -146,7 +161,6 @@
 
     <!-- CONTENU ACCUEIL -->
     <section class="accueil">
-
         <h2>Bienvenue dans votre espace astrologique</h2>
 
         <div class="separator"></div>
@@ -156,8 +170,12 @@
             un espace pour comprendre les signes, les planètes et les énergies  
             qui façonnent votre carte du ciel.
         </p>
-
     </section>
+
+    <!-- ⭐ BOUTON TECHNIQUE EN BAS DE PAGE ⭐ -->
+    <div style="text-align:center;">
+        <a href="technique.html" class="btn-technique">Zone technique</a>
+    </div>
 
 </body>
 </html>
