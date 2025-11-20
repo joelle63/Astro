@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Signes – Au fil du Zodiaque</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fond: #FAF8F5;
+            --texte: #2E2E2E;
+            --or: #D7BE82;
+            --or-fonce: #B88E4A;
+            --bleu-nuit: #1C2331;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--fond);
+            color: var(--texte);
+            font-family: "Lato", sans-serif;
+        }
+
+        /* BANDEAU */
+        .bandeau {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bandeau img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bandeau::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(215, 190, 130, 0.25);
+        }
+
+        .titre-bandeau {
+            position: absolute;
+            bottom: 65px;
+            left: 48%;
+            transform: translateX(-50%);
+            color: #2E2E2E;
+            text-shadow: 0 0 6px rgba(255,255,255,0.7);
+            font-family: "Playfair Display", serif;
+            font-size: 33px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* MENU */
+        nav {
+            background-color: var(--fond);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--or);
+        }
+
+        nav a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--bleu-nuit);
+        }
+
+        nav a:hover {
+            color: var(--or-fonce);
+        }
+
+        /* PAGE SIGNES */
+        section {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        h2 {
+            font-family: "Playfair Display", serif;
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--bleu-nuit);
+        }
+
+        .signes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        /* ⭐ cartes identiques aux planètes ⭐ */
+        .carte-signe {
+            padding: 22px;
+            background: #FBD78D;
+            border: 1px solid #D7BE82;
+            border-radius: 14px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.20);
+            transition: all 0.3s ease;
+            color: #2E2E2E;
+        }
+
+        .carte-signe:hover {
+            background: #FFE3A8;
+            transform: translateY(-6px);
+            box-shadow:
+                0 10px 20px rgba(0,0,0,0.22),
+                0 0 12px rgba(215,190,130,0.45);
+            border-color: #D7BE82;
+            cursor: pointer;
+        }
+
+        .carte-signe h3 {
+            font-family: "Playfair Display", serif;
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .carte-signe p {
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Bandeau -->
+    <div class="bandeau">
+        <img src="header.jpg" alt="Bandeau astrologique">
+        <div class="titre-bandeau">Au fil du Zodiaque</div>
+    </div>
+
+    <!-- Menu -->
+    <nav>
+        <a href="index.html">Accueil</a>
+        <a href="signes.html">Signes</a>
+        <a href="planetes.html">Planètes</a>
+        <a href="#">Maisons</a>
+        <a href="#">À propos</a>
+    </nav>
+
+    <!-- Contenu -->
+    <section>
+        <h2>Les Signes du Zodiaque</h2>
+        <p>Chaque signe exprime une manière unique d’être au monde, une tonalité fondamentale d’énergie.</p>
+
+        <div class="signes">
+
+            <div class="carte-signe"><h3>♈ Bélier</h3><p>Feu — Cardinal</p></div>
+            <div class="carte-signe"><h3>♉ Taureau</h3><p>Terre — Fixe</p></div>
+            <div class="carte-signe"><h3>♊ Gémeaux</h3><p>Air — Mutable</p></div>
+            <div class="carte-signe"><h3>♋ Cancer</h3><p>Eau — Cardinal</p></div>
+            <div class="carte-signe"><h3>♌ Lion</h3><p>Feu — Fixe</p></div>
+            <div class="carte-signe"><h3>♍ Vierge</h3><p>Terre — Mutable</p></div>
+            <div class="carte-signe"><h3>♎ Balance</h3><p>Air — Cardinal</p></div>
+            <div class="carte-signe"><h3>♏ Scorpion</h3><p>Eau — Fixe</p></div>
+            <div class="carte-signe"><h3>♐ Sagittaire</h3><p>Feu — Mutable</p></div>
+            <div class="carte-signe"><h3>♑ Capricorne</h3><p>Terre — Cardinal</p></div>
+            <div class="carte-signe"><h3>♒ Verseau</h3><p>Air — Fixe</p></div>
+            <div class="carte-signe"><h3>♓ Poissons</h3><p>Eau — Mutable</p></div>
+
+        </div>
+    </section>
+
+</body>
+</html>
