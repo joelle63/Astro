@@ -107,27 +107,34 @@
         }
 
         /* 🌟 Carte élégante premium */
-  .carte-planete {
+ .carte-planete {
     padding: 22px;
-    background: #D8C5A3; /* couleur du centre du bandeau */
-    border: 2px solid rgba(184, 142, 74, 0.65); /* doré un peu plus marqué */
+    background: #8F8F8F; /* Gris soutenu, élégant */
+    border: 2px solid #C5A878; /* Or doux */
     border-radius: 14px;
 
-    /* ombre pour relief */
-    box-shadow: 0 6px 14px rgba(0,0,0,0.13);
+    /* Ombre marquée mais élégante */
+    box-shadow: 0 6px 14px rgba(0,0,0,0.18);
 
     transition: all 0.35s ease;
+
+    color: #EAD9B6; /* doré léger pour le texte */
+}
+
+.carte-planete h3,
+.carte-planete p {
+    color: #EAD9B6; /* doré doux lisible */
 }
 
 .carte-planete:hover {
-    background: #CDB28A; /* nuance légèrement plus foncée au survol */
+    background: #7A7A7A; /* gris plus profond au survol */
     transform: translateY(-6px);
 
     box-shadow:
-        0 12px 22px rgba(0,0,0,0.18),
-        0 0 16px rgba(215,190,130,0.60); /* halo doré */
-    
-    border-color: var(--or-fonce);
+        0 12px 24px rgba(0,0,0,0.22),          /* ombre plus profonde */
+        0 0 16px rgba(215,190,130,0.50);       /* halo doré subtil */
+
+    border-color: #B88E4A; /* doré plus marqué */
     cursor: pointer;
 }
 
