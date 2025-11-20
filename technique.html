@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Technique – Au fil du Zodiaque</title>
+    <title>Zone technique – Au fil du Zodiaque</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -17,14 +17,14 @@
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--fond);
+            background: var(--fond);
             color: var(--texte);
             font-family: "Lato", sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
-        /* BANDEAU */
+        /* Bandeau */
         .bandeau {
             width: 100%;
             height: 180px;
@@ -40,26 +40,24 @@
 
         .bandeau::after {
             content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background: rgba(215, 190, 130, 0.25);
+            position: absolute;
+            inset: 0;
         }
 
         .titre-bandeau {
             position: absolute;
-            bottom: 65px;
+            bottom: 60px;
             left: 48%;
             transform: translateX(-50%);
-            color: #2E2E2E;
             font-family: "Playfair Display", serif;
             font-size: 33px;
+            color: #2E2E2E;
             font-weight: 600;
+            text-shadow: 0 0 6px rgba(255,255,255,0.7);
         }
 
-        /* MENU */
+        /* Menu */
         nav {
             background-color: var(--fond);
             display: flex;
@@ -71,66 +69,105 @@
 
         nav a {
             text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
             color: var(--bleu-nuit);
+            font-weight: 600;
         }
 
         nav a:hover {
             color: var(--or-fonce);
         }
 
-        /* CONTENU */
-        section {
+        /* Zone technique */
+        .contenu {
             max-width: 700px;
-            margin: 40px auto;
-            padding: 20px;
+            margin: 60px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            font-family: "Playfair Display", serif;
+            font-size: 32px;
+            color: var(--bleu-nuit);
             text-align: center;
         }
 
-        input[type="text"] {
-            width: 85%;
-            padding: 14px;
+        label {
+            font-weight: 600;
+        }
+
+        input {
+            padding: 10px;
+            width: 100%;
             font-size: 18px;
+            margin-top: 5px;
+            margin-bottom: 20px;
             border: 1px solid var(--or);
             border-radius: 8px;
-            margin-bottom: 20px;
         }
 
-        button {
-            padding: 12px 24px;
-            background-color: var(--or-fonce);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: #9C7A32;
-            transform: translateY(-3px);
-        }
-
-        #resultat {
-            margin-top: 30px;
+        /* Grille alignée */
+        .resultats {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            row-gap: 12px;
+            margin-top: 25px;
             font-size: 20px;
-            font-weight: 600;
+        }
+
+        .resultats div:first-child {
+            font-weight: 700;
             color: var(--bleu-nuit);
         }
+
     </style>
+
+    <script>
+        async function chercherVille() {
+            const ville = document.getElementById("ville").value.trim();
+            if (!ville) return;
+
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ville)}`;
+
+            const data = await fetch(url).then(res => res.json());
+            if (!data.length) {
+                alert("Ville introuvable.");
+                return;
+            }
+
+            const latitude = parseFloat(data[0].lat);
+            const longitude = parseFloat(data[0].lon);
+
+            // Latitude → degrés + minutes
+            const lat_deg = Math.floor(Math.abs(latitude));
+            const lat_min = Math.round((Math.abs(latitude) - lat_deg) * 60);
+
+            const lat_txt = `${lat_deg}° ${lat_min}' ${latitude >= 0 ? "N" : "S"}`;
+
+            // Longitude → heures + minutes + secondes
+            const total_seconds = Math.abs(longitude) * 240; // 1° = 4 minutes = 240s
+            const long_h = Math.floor(total_seconds / 3600);
+            const long_m = Math.floor((total_seconds % 3600) / 60);
+            const long_s = Math.round(total_seconds % 60);
+
+            const long_txt = `${long_h}h ${long_m}m ${long_s}s ${longitude >= 0 ? "E" : "O"}`;
+
+            document.getElementById("lat").textContent = lat_txt;
+            document.getElementById("lon").textContent = long_txt;
+        }
+    </script>
+
 </head>
 
 <body>
 
-    <!-- BANDEAU -->
     <div class="bandeau">
-        <img src="header.jpg" alt="Bandeau astrologique">
+        <img src="header.jpg">
         <div class="titre-bandeau">Au fil du Zodiaque</div>
     </div>
 
-    <!-- MENU -->
     <nav>
         <a href="index.html">Accueil</a>
         <a href="signes.html">Signes</a>
@@ -139,48 +176,20 @@
         <a href="#">À propos</a>
     </nav>
 
-    <!-- CONTENU -->
-    <section>
-        <h2>🔧 Zone technique</h2>
-        <p>Saisis une ville — je te retourne sa latitude et longitude.</p>
+    <div class="contenu">
+        <h2>Zone technique</h2>
 
-        <input id="ville" type="text" placeholder="Ex : Paris, Grenoble, Montluçon…">
+        <label for="ville">Entrez une ville :</label>
+        <input id="ville" type="text" placeholder="Exemple : Paris" onblur="chercherVille()">
 
-        <button onclick="chercher()">Trouver coordonnées</button>
+        <div class="resultats">
+            <div>Latitude :</div>
+            <div id="lat">—</div>
 
-        <div id="resultat"></div>
-    </section>
-
-    <script>
-        async function chercher() {
-            const ville = document.getElementById("ville").value.trim();
-            const resultDiv = document.getElementById("resultat");
-
-            if (!ville) {
-                resultDiv.textContent = "❗ Merci de saisir une ville.";
-                return;
-            }
-
-            // Appel à l’API libre Open-Meteo (géocodage)
-            const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(ville)}&count=1&language=fr&format=json`;
-
-            const res = await fetch(url);
-            const data = await res.json();
-
-            if (!data.results || data.results.length === 0) {
-                resultDiv.textContent = "Ville introuvable.";
-                return;
-            }
-
-            const r = data.results[0];
-
-            resultDiv.innerHTML = `
-                📍 <strong>${r.name}</strong>, ${r.country}<br><br>
-                🌐 Latitude : <strong>${r.latitude}</strong><br>
-                🌐 Longitude : <strong>${r.longitude}</strong>
-            `;
-        }
-    </script>
+            <div>Longitude :</div>
+            <div id="lon">—</div>
+        </div>
+    </div>
 
 </body>
 </html>
