@@ -99,9 +99,9 @@
         /* ⭐ Nouveau style du sous-titre ⭐ */
         .sous-titre {
             font-family: "Lato", sans-serif;
-            font-size: 22px;            /* légèrement agrandi */
+            font-size: 22px;
             font-weight: 600;
-            color: #9C7A32;             /* doré foncé lisible */
+            color: #9C7A32;
             letter-spacing: 0.5px;
             margin-bottom: 8px;
         }
@@ -120,31 +120,70 @@
             text-align: justify;
             margin-top: 20px;
         }
+
         /* ⭐ Liste avec petites étoiles dorées ⭐ */
-.liste-etoiles {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-}
+        .liste-etoiles {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
 
-.liste-etoiles li {
-    position: relative;
-    padding-left: 28px;
-    margin-bottom: 14px;
-    font-size: 19px;
-    text-align: left;
-}
+        .liste-etoiles li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 14px;
+            font-size: 19px;
+            text-align: left;
+        }
 
-/* Petite étoile dorée */
-.liste-etoiles li::before {
-    content: "✦";
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 20px;
-    color: #B88E4A; /* doré foncé harmonisé */
-    line-height: 18px;
-}
+        .liste-etoiles li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 20px;
+            color: #B88E4A;
+            line-height: 18px;
+        }
+
+        /* 🎯 BOUTON IMPRIMER */
+        .btn-print {
+            background: #D7BE82;
+            color: #1C2331;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            font-weight: 600;
+        }
+
+        .btn-print:hover {
+            background: #B88E4A;
+        }
+
+        /* 🎯 STYLES POUR L'IMPRESSION */
+        @media print {
+
+            /* On masque le bandeau, menu et bouton */
+            .bandeau,
+            nav,
+            .btn-print {
+                display: none !important;
+            }
+
+            body {
+                margin: 20mm;
+                background: white !important;
+                color: black !important;
+            }
+
+            h2, h3, p, li {
+                color: black !important;
+            }
+        }
 
     </style>
 </head>
@@ -172,36 +211,42 @@
         <div class="sous-titre">Volonté — Identité</div>
         <div class="decor"></div>
 
-     <div class="texte">
+        <!-- 🎯 BOUTON IMPRIMER -->
+        <button onclick="window.print()" class="btn-print">Imprimer cette page</button>
 
-    <p>
-        Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir :
-        ce que nous intégrerons progressivement au cours de notre vie.
-    </p>
+        <div class="texte">
 
-    <h3>Il représente&nbsp;:</h3>
+            <p>
+                Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir :
+                ce que nous intégrerons progressivement au cours de notre vie.
+            </p>
 
-    <ul class="liste-etoiles">
-    <li>notre motivation et notre vitalité ;</li>
-    <li>nos ambitions ;</li>
-    <li>notre détermination et la confiance que nous avons en nous ;</li>
-    <li>notre volonté ;</li>
-    <li>le sens que nous donnons à notre vie.</li>
-</ul>
+            <h3>Il représente&nbsp;:</h3>
 
-    <p>
-        Le signe dans lequel se trouve le Soleil indique comment il va s’exprimer,
-        et de quelle énergie il va se colorer.
-    </p>
+            <ul class="liste-etoiles">
+                <li>notre motivation et notre vitalité ;</li>
+                <li>nos ambitions ;</li>
+                <li>notre détermination et la confiance que nous avons en nous ;</li>
+                <li>notre volonté ;</li>
+                <li>le sens que nous donnons à notre vie.</li>
+            </ul>
 
-    <p>
-        La maison solaire montre dans quel domaine il nous est le plus naturel
-        et le plus nécessaire d’être nous-même.
-    </p>
+            <p>
+                Le signe dans lequel se trouve le Soleil indique comment il va s’exprimer,
+                et de quelle énergie il va se colorer.
+            </p>
 
-</div>
+            <p>
+                La maison solaire montre dans quel domaine il nous est le plus naturel
+                et le plus nécessaire d’être nous-même.
+            </p>
+
+        </div>
 
     </section>
+
+</body>
+</html>
 
 </body>
 </html>
