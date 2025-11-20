@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☉ Soleil – Au fil du Zodiaque</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fond: #FAF8F5;
+            --texte: #2E2E2E;
+            --or: #D7BE82;
+            --or-fonce: #B88E4A;
+            --bleu-nuit: #1C2331;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--fond);
+            color: var(--texte);
+            font-family: "Lato", sans-serif;
+        }
+
+        /* BANDEAU */
+        .bandeau {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bandeau img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bandeau::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(215, 190, 130, 0.25);
+        }
+
+        .titre-bandeau {
+            position: absolute;
+            bottom: 65px;
+            left: 48%;
+            transform: translateX(-50%);
+            color: #2E2E2E;
+            text-shadow: 0 0 6px rgba(255,255,255,0.7);
+            font-family: "Playfair Display", serif;
+            font-size: 36px;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* MENU */
+        nav {
+            background-color: var(--fond);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--or);
+        }
+
+        nav a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--bleu-nuit);
+        }
+
+        nav a:hover {
+            color: var(--or-fonce);
+        }
+
+        /* CONTENU */
+        section {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .titre-planete {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .titre-planete h1 {
+            font-family: "Playfair Display", serif;
+            font-size: 40px;
+            color: var(--bleu-nuit);
+            margin-bottom: 10px;
+        }
+
+        .titre-planete h1 .symbole {
+            font-size: 48px;
+            margin-right: 12px;
+        }
+
+        .sous-titre {
+            font-size: 20px;
+            color: var(--or-fonce);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .texte-placeholder {
+            font-size: 18px;
+            line-height: 1.7;
+            color: var(--texte);
+            background: white;
+            border: 1px solid var(--or);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Bandeau -->
+    <div class="bandeau">
+        <img src="header.jpg" alt="Bandeau astrologique">
+        <div class="titre-bandeau">Au fil du Zodiaque</div>
+    </div>
+
+    <!-- Menu -->
+    <nav>
+        <a href="index.html">Accueil</a>
+        <a href="signes.html">Signes</a>
+        <a href="planetes.html">Planètes</a>
+        <a href="#">Maisons</a>
+        <a href="#">À propos</a>
+    </nav>
+
+    <!-- CONTENU -->
+    <section>
+
+        <div class="titre-planete">
+            <h1><span class="symbole">☉</span> Soleil</h1>
+        </div>
+
+        <div class="sous-titre">
+            Volonté — Identité
+        </div>
+
+        <div class="texte-placeholder">
+            Ici, vous pourrez écrire votre texte détaillé sur le Soleil : son rôle intérieur,
+            sa symbolique, sa dynamique, ce qu’il représente dans la personnalité, la manière
+            dont il s’exprime dans le thème, etc.  
+            <br><br>
+            Ce texte n’est qu’un espace réservé pour l’instant.
+        </div>
+
+    </section>
+
+</body>
+</html>
