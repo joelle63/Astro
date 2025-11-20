@@ -120,6 +120,32 @@
             text-align: justify;
             margin-top: 20px;
         }
+        /* ⭐ Liste avec petites étoiles dorées ⭐ */
+.liste-etoiles {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.liste-etoiles li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 14px;
+    font-size: 19px;
+    text-align: left;
+}
+
+/* Petite étoile dorée */
+.liste-etoiles li::before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 20px;
+    color: #B88E4A; /* doré foncé harmonisé */
+    line-height: 18px;
+}
+
     </style>
 </head>
 
@@ -155,13 +181,13 @@
 
     <h3>Il représente&nbsp;:</h3>
 
-    <ul>
-        <li>notre motivation et notre vitalité ;</li>
-        <li>nos ambitions ;</li>
-        <li>notre détermination et la confiance que nous avons en nous ;</li>
-        <li>notre volonté ;</li>
-        <li>le sens que nous donnons à notre vie.</li>
-    </ul>
+    <ul class="liste-etoiles">
+    <li>notre motivation et notre vitalité ;</li>
+    <li>nos ambitions ;</li>
+    <li>notre détermination et la confiance que nous avons en nous ;</li>
+    <li>notre volonté ;</li>
+    <li>le sens que nous donnons à notre vie.</li>
+</ul>
 
     <p>
         Le signe dans lequel se trouve le Soleil indique comment il va s’exprimer,
