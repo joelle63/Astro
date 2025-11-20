@@ -51,7 +51,7 @@
         .titre-bandeau {
             position: absolute;
             bottom: 65px;
-            left: 50%;
+            left: 49%;
             transform: translateX(-50%);
             color: #2E2E2E;
             text-shadow: 0 0 6px rgba(255,255,255,0.7);
@@ -107,30 +107,29 @@
         }
 
         /* 🌟 Carte élégante premium */
-      .carte-planete {
+  .carte-planete {
     padding: 22px;
-    background: #F1E8D8; /* fond plus foncé, élégant */
-    border: 2px solid rgba(184, 142, 74, 0.55); /* doré plus visible */
+    background: #D8C5A3; /* couleur du centre du bandeau */
+    border: 2px solid rgba(184, 142, 74, 0.65); /* doré un peu plus marqué */
     border-radius: 14px;
 
-    /* Ombre douce mais présente */
-    box-shadow: 0 5px 12px rgba(0,0,0,0.12);
+    /* ombre pour relief */
+    box-shadow: 0 6px 14px rgba(0,0,0,0.13);
 
     transition: all 0.35s ease;
 }
 
 .carte-planete:hover {
-    background: #EDE0C8; /* un peu plus clair au survol */
+    background: #CDB28A; /* nuance légèrement plus foncée au survol */
     transform: translateY(-6px);
 
     box-shadow:
-        0 10px 22px rgba(0,0,0,0.18),
-        0 0 14px rgba(215,190,130,0.55); /* halo doré visible */
-
+        0 12px 22px rgba(0,0,0,0.18),
+        0 0 16px rgba(215,190,130,0.60); /* halo doré */
+    
     border-color: var(--or-fonce);
     cursor: pointer;
 }
-
 
         .carte-planete h3 {
             font-family: "Playfair Display", serif;
