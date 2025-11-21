@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Les Planètes – Au fil du Zodiaque</title>
 
+    <!-- Police typographique standard -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Police dédiée aux symboles planétaires (résout Mars/Vénus trop fins) -->
+    <link href="https://fonts.cdnfonts.com/css/astro-symbols" rel="stylesheet">
 
     <style>
         :root {
@@ -87,7 +91,7 @@
         /* PAGE PLANÈTES */
         section {
             max-width: 900px;
-            margin: 60px auto;
+            margin: 20px auto;
             padding: 0 20px;
             text-align: center;
         }
@@ -148,6 +152,14 @@
             font-weight: 600;
         }
 
+        /* 🌟 RENDU DES PICTOGRAMMES PLANÉTAIRES – UNIQUES POUR HOMOGÉNÉITÉ VISUELLE */
+        .picto-planete {
+            font-family: 'Astro Symbols', 'Playfair Display', serif !important;
+            font-size: 24px;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+
     </style>
 </head>
 
@@ -177,23 +189,29 @@
 
             <!-- ⭐ CARTE SOLEIL AVEC LIEN ⭐ -->
             <a href="soleil.html" class="carte-planete">
-                <h3>☉ Soleil</h3>
+                <h3><span class="picto-planete">☉</span>Soleil</h3>
                 <p>Volonté — Identité</p>
             </a>
 
-            <div class="carte-planete"><h3>☾ Lune</h3><p>Émotions — Mémoire</p></div>
-            <div class="carte-planete"><h3>☿ Mercure</h3><p>Esprit — Communication</p></div>
-            <div class="carte-planete"><h3>♀ Vénus</h3><p>Affect — Harmonie</p></div>
-            <div class="carte-planete"><h3>♂ Mars</h3><p>Action — Désir</p></div>
-            <div class="carte-planete"><h3>♃ Jupiter</h3><p>Expansion — Foi</p></div>
-            <div class="carte-planete"><h3>♄ Saturne</h3><p>Structure — Temps</p></div>
-            <div class="carte-planete"><h3>♅ Uranus</h3><p>Liberté — Éveil</p></div>
-            <div class="carte-planete"><h3>♆ Neptune</h3><p>Inspiration — Fusion</p></div>
-            <div class="carte-planete"><h3>♇ Pluton</h3><p>Transformation — Pulsions</p></div>
+            <div class="carte-planete"><h3><span class="picto-planete">☾</span>Lune</h3><p>Émotions — Mémoire</p></div>
+            <div class="carte-planete"><h3><span class="picto-planete">☿</span>Mercure</h3><p>Esprit — Communication</p></div>
+
+            <!-- ⭐ VÉNUS CORRIGÉE -->
+            <div class="carte-planete"><h3><span class="picto-planete">♀</span>Vénus</h3><p>Affect — Harmonie</p></div>
+
+            <!-- ⭐ MARS CORRIGÉ -->
+            <div class="carte-planete"><h3><span class="picto-planete">♂</span>Mars</h3><p>Action — Désir</p></div>
+
+            <div class="carte-planete"><h3><span class="picto-planete">♃</span>Jupiter</h3><p>Expansion — Foi</p></div>
+            <div class="carte-planete"><h3><span class="picto-planete">♄</span>Saturne</h3><p>Structure — Temps</p></div>
+            <div class="carte-planete"><h3><span class="picto-planete">♅</span>Uranus</h3><p>Liberté — Éveil</p></div>
+            <div class="carte-planete"><h3><span class="picto-planete">♆</span>Neptune</h3><p>Inspiration — Fusion</p></div>
+            <div class="carte-planete"><h3><span class="picto-planete">♇</span>Pluton</h3><p>Transformation — Pulsions</p></div>
 
         </div>
     </section>
 
 </body>
 </html>
+
 
