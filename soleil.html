@@ -24,7 +24,7 @@
             font-family: "Lato", sans-serif;
         }
 
-        /* BANDEAU */
+        /* BANNIÈRE NORMALE (SITE) */
         .bandeau {
             width: 100%;
             height: 180px;
@@ -51,8 +51,8 @@
             left: 48%;
             transform: translateX(-50%);
             color: #2E2E2E;
-            font-family: "Playfair Display", serif;
             text-shadow: 0 0 6px rgba(255,255,255,0.7);
+            font-family: "Playfair Display", serif;
             font-size: 33px;
             font-weight: 600;
         }
@@ -109,7 +109,7 @@
 
         .texte {
             font-size: 19px;
-            line-height: 1.7;
+            line-height: 1.68;
             text-align: justify;
             margin-top: 20px;
         }
@@ -123,7 +123,7 @@
         .liste-etoiles li {
             position: relative;
             padding-left: 28px;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             font-size: 19px;
             text-align: left;
         }
@@ -133,10 +133,11 @@
             position: absolute;
             left: 0;
             top: 0;
-            font-size: 20px;
+            font-size: 18px;
             color: #B88E4A;
         }
 
+        /* BOUTON PDF */
         .btn {
             background: #D7BE82;
             color: #1C2331;
@@ -154,18 +155,40 @@
             background: #B88E4A;
         }
 
+        /* MINI-BANNIÈRE POUR LE PDF */
+        #mini-banniere {
+            display: none;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #mini-banniere img {
+            width: 100%;
+            max-height: 60px;
+            object-fit: cover;
+        }
+
+        /* CACHER BANDEAU & MENU DANS LE PDF */
+        @media print {
+            .bandeau,
+            nav,
+            .btn {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- Bandeau -->
-    <div class="bandeau" id="capture-start">
+    <!-- BANNIÈRE DU SITE -->
+    <div class="bandeau">
         <img src="header.jpg" alt="Bandeau astrologique">
         <div class="titre-bandeau">Au fil du Zodiaque</div>
     </div>
 
-    <!-- Menu -->
+    <!-- MENU DU SITE -->
     <nav>
         <a href="index.html">Accueil</a>
         <a href="signes.html">Signes</a>
@@ -174,93 +197,81 @@
         <a href="#">À propos</a>
     </nav>
 
-    <!-- CONTENU -->
-    <section>
+    <!-- SECTION PDF -->
+    <section id="pdf-content">
 
-        <div id="pdf-zone">
-
-            <h2>☉ Le Soleil</h2>
-            <div class="sous-titre">Volonté — Identité</div>
-            <div class="decor"></div>
-
-            <div class="texte">
-
-                <p>
-                    Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir :
-                    ce que nous intégrerons progressivement au cours de notre vie.
-                </p>
-
-                <h3>Il représente :</h3>
-
-                <ul class="liste-etoiles">
-                    <li>notre motivation et notre vitalité ;</li>
-                    <li>nos ambitions ;</li>
-                    <li>notre détermination et la confiance que nous avons en nous ;</li>
-                    <li>notre volonté ;</li>
-                    <li>le sens que nous donnons à notre vie.</li>
-                </ul>
-
-                <p>
-                    Le signe dans lequel se trouve le Soleil indique comment il va s’exprimer,
-                    et de quelle énergie il va se colorer.
-                </p>
-
-                <p>
-                    La maison solaire montre dans quel domaine il nous est le plus naturel
-                    et le plus nécessaire d’être nous-même.
-                </p>
-
-            </div>
-
+        <!-- MINI-BANNIÈRE (PDF ONLY) -->
+        <div id="mini-banniere">
+            <img src="Banniere2.jpg" alt="Mini bannière PDF">
         </div>
 
-        <!-- Bouton PDF -->
+        <h2>☉ Le Soleil</h2>
+        <div class="sous-titre">Volonté — Identité</div>
+        <div class="decor"></div>
+
+        <div class="texte">
+            <p>Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir : ce que nous intégrerons progressivement au cours de notre vie.</p>
+
+            <h3>Il représente :</h3>
+
+            <ul class="liste-etoiles">
+                <li>notre motivation et notre vitalité ;</li>
+                <li>nos ambitions ;</li>
+                <li>notre détermination et la confiance que nous avons en nous ;</li>
+                <li>notre volonté ;</li>
+                <li>le sens que nous donnons à notre vie.</li>
+            </ul>
+
+            <p>Le signe dans lequel se trouve le Soleil indique comment il va s’exprimer, et de quelle énergie il va se colorer.</p>
+
+            <p>La maison solaire montre dans quel domaine il nous est le plus naturel et le plus nécessaire d’être nous-même.</p>
+        </div>
+
         <button class="btn" onclick="generatePDF()">Télécharger en PDF</button>
 
     </section>
 
-
-    <!-- Librairies -->
+    <!-- PDF LIBRARIES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-    async function generatePDF() {
+        async function generatePDF() {
 
-        const { jsPDF } = window.jspdf;
+            // Afficher la mini-bannière
+            document.getElementById("mini-banniere").style.display = "block";
 
-        // Zone à capturer : bandeau + menu + contenu
-        const element = document.body;
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById("pdf-content");
 
-        // capture haute résolution
-        const canvas = await html2canvas(element, {
-            scale: 3,
-            windowWidth: document.documentElement.scrollWidth,
-            windowHeight: document.documentElement.scrollHeight
-        });
+            // capture haute résolution
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                scrollY: -window.scrollY
+            });
 
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
+            const pdf = new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: "a4"
+            });
 
-        // Dimensions A4
-        const pageWidth = 210;
-        const pageHeight = 297;
+            const pageWidth = 210;
+            const pageHeight = 297;
 
-        // Factor compression
-        const imgWidth = pageWidth;
-        const imgHeight = canvas.height * (imgWidth / canvas.width);
+            const imgWidth = pageWidth;
+            const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-        // Centrage vertical compressé sur 1 page
-        const ratio = pageHeight / imgHeight;
+            const ratio = pageHeight / imgHeight;
 
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight * ratio);
-        pdf.save("soleil.pdf");
-    }
+            pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight * ratio);
+            pdf.save("soleil.pdf");
+
+            // Ré-cacher la bannière pour le site
+            document.getElementById("mini-banniere").style.display = "none";
+        }
     </script>
 
 </body>
