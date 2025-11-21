@@ -24,7 +24,6 @@
             font-family: "Lato", sans-serif;
         }
 
-        /* BANDEAU */
         .bandeau {
             width: 100%;
             height: 180px;
@@ -41,10 +40,7 @@
         .bandeau::after {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background: rgba(215, 190, 130, 0.25);
         }
 
@@ -60,7 +56,6 @@
             font-weight: 600;
         }
 
-        /* MENU */
         nav {
             background-color: var(--fond);
             display: flex;
@@ -81,7 +76,6 @@
             color: var(--or-fonce);
         }
 
-        /* CONTENU PLANÈTE */
         section {
             max-width: 900px;
             margin: 30px auto;
@@ -96,17 +90,14 @@
             color: var(--bleu-nuit);
         }
 
-        /* ⭐ Nouveau style du sous-titre ⭐ */
         .sous-titre {
             font-family: "Lato", sans-serif;
             font-size: 22px;
             font-weight: 600;
             color: #9C7A32;
-            letter-spacing: 0.5px;
             margin-bottom: 8px;
         }
 
-        /* ⭐ Petite ligne décorative ⭐ */
         .decor {
             width: 80px;
             height: 2px;
@@ -121,7 +112,6 @@
             margin-top: 20px;
         }
 
-        /* ⭐ Liste avec petites étoiles dorées ⭐ */
         .liste-etoiles {
             list-style: none;
             padding: 0;
@@ -143,10 +133,8 @@
             top: 0;
             font-size: 20px;
             color: #B88E4A;
-            line-height: 18px;
         }
 
-        /* 🎯 BOUTON IMPRIMER */
         .btn-print {
             background: #D7BE82;
             color: #1C2331;
@@ -164,10 +152,7 @@
             background: #B88E4A;
         }
 
-        /* 🎯 STYLES POUR L'IMPRESSION */
         @media print {
-
-            /* On masque le bandeau, menu et bouton */
             .bandeau,
             nav,
             .btn-print {
@@ -190,13 +175,11 @@
 
 <body>
 
-    <!-- BANDEAU -->
     <div class="bandeau">
         <img src="header.jpg" alt="Bandeau astrologique">
         <div class="titre-bandeau">Au fil du Zodiaque</div>
     </div>
 
-    <!-- MENU -->
     <nav>
         <a href="index.html">Accueil</a>
         <a href="signes.html">Signes</a>
@@ -205,25 +188,25 @@
         <a href="#">À propos</a>
     </nav>
 
-    <!-- CONTENU -->
- <section>
+<section>
     <h2>☉ Cancer</h2>
     <div class="sous-titre">"Je protège - je ressens"</div>
     <div class="decor"></div>
 
     <div class="texte">
 
+        <!-- Partie Soleil déjà présente -->
         <p>
             Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir :
             ce que nous intégrerons progressivement au cours de notre vie.
         </p>
 
-        <h3>Il représente&nbsp;:</h3>
+        <h3>Il représente :</h3>
 
         <ul class="liste-etoiles">
             <li>notre motivation et notre vitalité ;</li>
             <li>nos ambitions ;</li>
-            <li>notre détermination et la confiance que nous avons en nous ;</li>
+            <li>nos détermination et la confiance en nous ;</li>
             <li>notre volonté ;</li>
             <li>le sens que nous donnons à notre vie.</li>
         </ul>
@@ -238,17 +221,111 @@
             et le plus nécessaire d’être nous-même.
         </p>
 
+        <!-- ——————————————————————— -->
+        <!-- 🔵 TON TEXTE CANCER INTÉGRÉ -->
+        <!-- ——————————————————————— -->
+
+        <h3>Données fondamentales</h3>
+        <ul class="liste-etoiles">
+            <li>Polarité : Féminine (réceptive)</li>
+            <li>Élément : Eau (émotions, sensibilité, mémoire)</li>
+            <li>Mode : Cardinal (initie, met en mouvement dans l’affectif)</li>
+            <li>Maîtrise : Lune (réceptivité, cycles, imagination)</li>
+            <li>Exaltation : Jupiter (croissance intérieure, générosité)</li>
+            <li>Exil : Saturne (distance, limites difficiles)</li>
+            <li>Chute : Mars (action directe compliquée)</li>
+        </ul>
+
+        <h3>1. Nature fondamentale du Cancer</h3>
+        <ul class="liste-etoiles">
+            <li>Sensible, réceptif, intuitif</li>
+            <li>Émotionnel avant d’être logique</li>
+            <li>Imagination fertile</li>
+            <li>Profonde mémoire affective</li>
+            <li>Besoin de sécurité émotionnelle</li>
+            <li>Protecteur, enveloppant, nourricier</li>
+            <li>Très attaché aux proches, au passé, aux racines</li>
+        </ul>
+
+        <h3>2. Capacités essentielles</h3>
+        <ul class="liste-etoiles">
+            <li>Empathie naturelle</li>
+            <li>Sens des ambiances, vibration émotionnelle</li>
+            <li>Imagination créatrice</li>
+            <li>Intuition corporelle</li>
+            <li>Créer un espace intime, protecteur</li>
+            <li>Écoute profonde</li>
+            <li>Adaptabilité émotionnelle</li>
+            <li>Capacité de soin, de soutien, de réconfort</li>
+        </ul>
+
+        <h3>3. Fonctionnement comportemental</h3>
+        <ul class="liste-etoiles">
+            <li>Ressent tout très fort</li>
+            <li>Relationnel chaleureux, affectif</li>
+            <li>Fidélité au “clan”</li>
+            <li>Grande disponibilité émotionnelle</li>
+            <li>Capacité à initier un lien</li>
+            <li>Vision intuitive de la réalité</li>
+            <li>Attachement au passé</li>
+            <li>Sensibilité artistique</li>
+        </ul>
+
+        <h3>4. Besoins profonds</h3>
+        <ul class="liste-etoiles">
+            <li>Sécurité émotionnelle</li>
+            <li>Climat bienveillant</li>
+            <li>Temps pour ressentir</li>
+            <li>Environnement familier</li>
+            <li>Relations stables</li>
+            <li>Espace intime</li>
+            <li>Sentiment d’appartenance</li>
+        </ul>
+
+        <h3>5. Difficultés possibles</h3>
+        <ul class="liste-etoiles">
+            <li>Hypersensibilité</li>
+            <li>Réactivité émotionnelle</li>
+            <li>Peur de l’abandon</li>
+            <li>Attachement excessif</li>
+            <li>Difficulté à poser des limites</li>
+            <li>Bouderie, retrait</li>
+            <li>Vision subjective</li>
+            <li>Susceptibilité</li>
+            <li>Confusion émotion/réalité</li>
+            <li>Repli quand c'est trop intense</li>
+        </ul>
+
+        <h3>6. Ombre projetée : le Capricorne</h3>
+        <ul class="liste-etoiles">
+            <li>Distance émotionnelle</li>
+            <li>Structuration</li>
+            <li>Responsabilité personnelle</li>
+            <li>Dire non</li>
+            <li>Objectivité</li>
+            <li>Autonomie émotionnelle</li>
+            <li>Détachement / autorité</li>
+        </ul>
+
+        <p>Ces qualités, une fois intégrées, équilibrent profondément l’énergie Cancer.</p>
+
+        <h3>7. Chemin d’évolution</h3>
+        <ul class="liste-etoiles">
+            <li>Poser des limites</li>
+            <li>Accepter la séparation comme étape</li>
+            <li>Développer la responsabilité personnelle</li>
+            <li>Agir même quand c'est inconfortable</li>
+            <li>Structurer ses émotions</li>
+            <li>Trouver un équilibre émotion / recul</li>
+            <li>S'ouvrir sans perdre son intériorité</li>
+            <li>Bâtir une sécurité interne</li>
+        </ul>
+
     </div>
 
-    <!-- 🎯 BOUTON IMPRIMER (EN BAS) -->
     <button onclick="window.print()" class="btn-print">Imprimer cette page</button>
-
 </section>
 
 </body>
 </html>
 
-</body>
-</html>
-
-</html>
