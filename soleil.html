@@ -51,8 +51,8 @@
             left: 48%;
             transform: translateX(-50%);
             color: #2E2E2E;
-            text-shadow: 0 0 6px rgba(255,255,255,0.7);
             font-family: "Playfair Display", serif;
+            text-shadow: 0 0 6px rgba(255,255,255,0.7);
             font-size: 33px;
             font-weight: 600;
         }
@@ -137,14 +137,6 @@
             color: #B88E4A;
         }
 
-        /* Boutons */
-        .buttons {
-            margin: 25px 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
         .btn {
             background: #D7BE82;
             color: #1C2331;
@@ -154,18 +146,12 @@
             font-size: 16px;
             cursor: pointer;
             font-weight: 600;
+            margin: 20px auto;
+            display: block;
         }
 
         .btn:hover {
             background: #B88E4A;
-        }
-
-        /* Ce qui sera converti en PDF */
-        #pdf-content {
-            background: white;
-            padding: 20px 40px;
-            max-width: 700px;
-            margin: 0 auto;
         }
 
     </style>
@@ -174,7 +160,7 @@
 <body>
 
     <!-- Bandeau -->
-    <div class="bandeau">
+    <div class="bandeau" id="capture-start">
         <img src="header.jpg" alt="Bandeau astrologique">
         <div class="titre-bandeau">Au fil du Zodiaque</div>
     </div>
@@ -188,10 +174,10 @@
         <a href="#">À propos</a>
     </nav>
 
-    <!-- CONTENU PRINCIPAL -->
+    <!-- CONTENU -->
     <section>
-        
-        <div id="pdf-content">
+
+        <div id="pdf-zone">
 
             <h2>☉ Le Soleil</h2>
             <div class="sous-titre">Volonté — Identité</div>
@@ -229,29 +215,52 @@
         </div>
 
         <!-- Bouton PDF -->
-        <div class="buttons">
-            <button class="btn" onclick="generatePDF()">Télécharger en PDF</button>
-        </div>
+        <button class="btn" onclick="generatePDF()">Télécharger en PDF</button>
 
     </section>
 
-    <!-- Librairie PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Librairies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-        function generatePDF() {
-            const element = document.getElementById('pdf-content');
+    async function generatePDF() {
 
-            const opt = {
-                margin:       10,
-                filename:     'soleil.pdf',
-                image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+        const { jsPDF } = window.jspdf;
 
-            html2pdf().set(opt).from(element).save();
-        }
+        // Zone à capturer : bandeau + menu + contenu
+        const element = document.body;
+
+        // capture haute résolution
+        const canvas = await html2canvas(element, {
+            scale: 3,
+            windowWidth: document.documentElement.scrollWidth,
+            windowHeight: document.documentElement.scrollHeight
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        // Dimensions A4
+        const pageWidth = 210;
+        const pageHeight = 297;
+
+        // Factor compression
+        const imgWidth = pageWidth;
+        const imgHeight = canvas.height * (imgWidth / canvas.width);
+
+        // Centrage vertical compressé sur 1 page
+        const ratio = pageHeight / imgHeight;
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight * ratio);
+        pdf.save("soleil.pdf");
+    }
     </script>
 
 </body>
