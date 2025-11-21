@@ -54,4 +54,148 @@
             left: 48%;
             transform: translateX(-50%);
             color: #2E2E2E;
-            text-sh
+            text-shadow: 0 0 6px rgba(255,255,255,0.7);
+            font-family: "Playfair Display", serif;
+            font-size: 33px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* MENU */
+        nav {
+            background-color: var(--fond);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--or);
+        }
+
+        nav a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--bleu-nuit);
+        }
+
+        nav a:hover {
+            color: var(--or-fonce);
+        }
+
+        /* PAGE PLANÈTES */
+        section {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        h2 {
+            font-family: "Playfair Display", serif;
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--bleu-nuit);
+        }
+
+        .planetes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        /* 🌟 Carte élégante premium */
+        .carte-planete {
+            padding: 22px;
+            background: #FBD78D;
+            border: 1px solid #D7BE82;
+            border-radius: 14px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.20);
+            transition: all 0.3s ease;
+            color: #EAD9B6;
+            text-decoration: none;
+            display: block;
+        }
+
+        .carte-planete h3,
+        .carte-planete p {
+            color: #2E2E2E;
+        }
+
+        /* 🌟 SURVOL AMÉLIORÉ */
+        .carte-planete:hover {
+            background: #FFE3A8;
+            transform: translateY(-6px);
+            box-shadow:
+                0 10px 20px rgba(0,0,0,0.22),
+                0 0 12px rgba(215,190,130,0.45);
+            border-color: #D7BE82;
+            cursor: pointer;
+            color: #2E2E2E;
+        }
+
+        .carte-planete h3 {
+            font-family: "Playfair Display", serif;
+            margin-bottom: 10px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .carte-planete p {
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Bandeau -->
+    <div class="bandeau">
+        <img src="header.jpg" alt="Bandeau astrologique">
+        <div class="titre-bandeau">Au fil du Zodiaque</div>
+    </div>
+
+    <!-- Menu -->
+    <nav>
+        <a href="index.html">Accueil</a>
+        <a href="signes.html">Signes</a>
+        <a href="planetes.html">Planètes</a>
+        <a href="#">Maisons</a>
+        <a href="#">À propos</a>
+    </nav>
+
+    <!-- Contenu -->
+    <section>
+        <h2>Les Planètes</h2>
+        <p>Les planètes représentent les fonctions psychologiques essentielles, chacune exprimant une énergie spécifique.</p>
+
+        <div class="planetes">
+
+            <a href="soleil.html" class="carte-planete">
+                <h3>☉ Soleil</h3>
+                <p>Volonté — Identité</p>
+            </a>
+
+            <div class="carte-planete"><h3>☾ Lune</h3><p>Émotions — Mémoire</p></div>
+            <div class="carte-planete"><h3>☿ Mercure</h3><p>Esprit — Communication</p></div>
+
+            <!-- ⭐ VENUS CORRIGÉE -->
+            <div class="carte-planete"><h3>&#9792; Vénus</h3><p>Affect — Harmonie</p></div>
+
+            <!-- ⭐ MARS CORRIGÉ -->
+            <div class="carte-planete"><h3>&#9794; Mars</h3><p>Action — Désir</p></div>
+
+            <div class="carte-planete"><h3>♃ Jupiter</h3><p>Expansion — Foi</p></div>
+            <div class="carte-planete"><h3>♄ Saturne</h3><p>Structure — Temps</p></div>
+            <div class="carte-planete"><h3>♅ Uranus</h3><p>Liberté — Éveil</p></div>
+            <div class="carte-planete"><h3>♆ Neptune</h3><p>Inspiration — Fusion</p></div>
+            <div class="carte-planete"><h3>♇ Pluton</h3><p>Transformation — Pulsions</p></div>
+
+        </div>
+    </section>
+
+</body>
+</html>
