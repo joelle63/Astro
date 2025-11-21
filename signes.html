@@ -102,7 +102,7 @@
             margin-top: 40px;
         }
 
-        /* CARTES */
+        /* ⭐ CARTES ⭐ */
         .carte-signe {
             padding: 22px;
             background: #FBD78D;
@@ -123,7 +123,7 @@
             cursor: pointer;
         }
 
-        /* STYLE DES PICTOS TEXTE (temporaire pour les autres signes) */
+        /* ⭐ Nouveau picto (sera remplacé par tes icônes stylisées) ⭐ */
         .picto {
             width: 50px;
             height: 50px;
@@ -138,15 +138,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
 
-        /* STYLE DU PICTO IMAGE (Nouveau Cancer) */
-        .picto-img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            margin: 0 auto 12px;
-            display: block;
-        }
-
         .carte-signe h3 {
             font-family: "Playfair Display", serif;
             font-size: 22px;
@@ -156,6 +147,11 @@
 
         .carte-signe p {
             font-weight: 600;
+        }
+
+        /* ⭐ ESPACE RÉDUIT ENTRE 2ᵉ ET 3ᵉ LIGNE ⭐ */
+        .petit-espace {
+            margin-top: 5px;
         }
 
     </style>
@@ -183,21 +179,14 @@
         <h2>Les Signes du Zodiaque</h2>
         <p>Les signes astrologiques sont des formes d'énergie qui permettent aux planètes qui les habitent de s'exprimer.</p>
         <p>Par exemple, un Soleil Cancer a la volonté de protéger les siens, ses proches, ses racines, son histoire.</p>
-        <p>Il donne un sens à la vie en transmettant la mémoire, l’émotion et tout ce qui permet aux liens de perdurer.</p>
+        <p class="petit-espace">Il donne un sens à la vie en transmettant la mémoire, l’émotion et tout ce qui permet aux liens de perdurer.</p>
 
         <div class="signes">
 
             <div class="carte-signe"><div class="picto">♈</div><h3>Bélier</h3><p>Feu — Cardinal</p></div>
             <div class="carte-signe"><div class="picto">♉</div><h3>Taureau</h3><p>Terre — Fixe</p></div>
             <div class="carte-signe"><div class="picto">♊</div><h3>Gémeaux</h3><p>Air — Mutable</p></div>
-
-            <!-- ⭐ NOUVEAU CANCER AVEC TON PICTO PNG ⭐ -->
-            <div class="carte-signe">
-                <img src="Cancer.png" alt="Cancer" class="picto-img">
-                <h3>Cancer</h3>
-                <p>Eau — Cardinal</p>
-            </div>
-
+            <div class="carte-signe"><div class="picto">♋</div><h3>Cancer</h3><p>Eau — Cardinal</p></div>
             <div class="carte-signe"><div class="picto">♌</div><h3>Lion</h3><p>Feu — Fixe</p></div>
             <div class="carte-signe"><div class="picto">♍</div><h3>Vierge</h3><p>Terre — Mutable</p></div>
             <div class="carte-signe"><div class="picto">♎</div><h3>Balance</h3><p>Air — Cardinal</p></div>
