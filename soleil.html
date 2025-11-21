@@ -137,7 +137,15 @@
             color: #B88E4A;
         }
 
-        .btn-print {
+        /* Boutons */
+        .buttons {
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
             background: #D7BE82;
             color: #1C2331;
             border: none;
@@ -145,71 +153,19 @@
             border-radius: 6px;
             font-size: 16px;
             cursor: pointer;
-            margin: 20px auto;
-            display: block;
             font-weight: 600;
         }
 
-        .btn-print:hover {
+        .btn:hover {
             background: #B88E4A;
         }
 
-        /* 🎯 MODE IMPRESSION PRO */
-        @media print {
-
-            @page {
-                margin: 10mm !important; /* marges fines */
-            }
-
-            body {
-                background: white !important;
-            }
-
-            .bandeau,
-            nav,
-            .btn-print {
-                display: none !important;
-            }
-
-            section {
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            h2 {
-                font-size: 28px !important;
-                margin-bottom: 6px !important;
-            }
-
-            .sous-titre {
-                font-size: 18px !important;
-                margin-bottom: 4px !important;
-            }
-
-            .decor {
-                margin-bottom: 15px !important;
-            }
-
-            .texte {
-                font-size: 16px !important;
-                line-height: 1.4 !important;
-                margin-top: 10px !important;
-            }
-
-            .liste-etoiles li {
-                font-size: 16px !important;
-                margin-bottom: 8px !important;
-                padding-left: 22px !important;
-            }
-
-            .liste-etoiles li::before {
-                font-size: 16px !important;
-            }
-
-            p, li, h3 {
-                page-break-inside: avoid !important;
-            }
+        /* Ce qui sera converti en PDF */
+        #pdf-content {
+            background: white;
+            padding: 20px 40px;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
     </style>
@@ -217,11 +173,13 @@
 
 <body>
 
+    <!-- Bandeau -->
     <div class="bandeau">
         <img src="header.jpg" alt="Bandeau astrologique">
         <div class="titre-bandeau">Au fil du Zodiaque</div>
     </div>
 
+    <!-- Menu -->
     <nav>
         <a href="index.html">Accueil</a>
         <a href="signes.html">Signes</a>
@@ -230,43 +188,71 @@
         <a href="#">À propos</a>
     </nav>
 
+    <!-- CONTENU PRINCIPAL -->
     <section>
-        <h2>☉ Le Soleil</h2>
-        <div class="sous-titre">Volonté — Identité</div>
-        <div class="decor"></div>
+        
+        <div id="pdf-content">
 
-        <div class="texte">
+            <h2>☉ Le Soleil</h2>
+            <div class="sous-titre">Volonté — Identité</div>
+            <div class="decor"></div>
 
-            <p>
-                Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir :
-                ce que nous intégrerons progressivement au cours de notre vie.
-            </p>
+            <div class="texte">
 
-            <h3>Il représente :</h3>
+                <p>
+                    Dans un thème natal, le Soleil nous montre ce que nous cherchons à devenir :
+                    ce que nous intégrerons progressivement au cours de notre vie.
+                </p>
 
-            <ul class="liste-etoiles">
-                <li>notre motivation et notre vitalité ;</li>
-                <li>nos ambitions ;</li>
-                <li>notre détermination et la confiance que nous avons en nous ;</li>
-                <li>notre volonté ;</li>
-                <li>le sens que nous donnons à notre vie.</li>
-            </ul>
+                <h3>Il représente :</h3>
 
-            <p>
-                Le signe dans lequel se trouve le Soleil indique comment il va s’exprimer,
-                et de quelle énergie il va se colorer.
-            </p>
+                <ul class="liste-etoiles">
+                    <li>notre motivation et notre vitalité ;</li>
+                    <li>nos ambitions ;</li>
+                    <li>notre détermination et la confiance que nous avons en nous ;</li>
+                    <li>notre volonté ;</li>
+                    <li>le sens que nous donnons à notre vie.</li>
+                </ul>
 
-            <p>
-                La maison solaire montre dans quel domaine il nous est le plus naturel
-                et le plus nécessaire d’être nous-même.
-            </p>
+                <p>
+                    Le signe dans lequel se trouve le Soleil indique comment il va s’exprimer,
+                    et de quelle énergie il va se colorer.
+                </p>
+
+                <p>
+                    La maison solaire montre dans quel domaine il nous est le plus naturel
+                    et le plus nécessaire d’être nous-même.
+                </p>
+
+            </div>
 
         </div>
 
-        <button onclick="window.print()" class="btn-print">Imprimer cette page</button>
+        <!-- Bouton PDF -->
+        <div class="buttons">
+            <button class="btn" onclick="generatePDF()">Télécharger en PDF</button>
+        </div>
 
     </section>
+
+    <!-- Librairie PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        function generatePDF() {
+            const element = document.getElementById('pdf-content');
+
+            const opt = {
+                margin:       10,
+                filename:     'soleil.pdf',
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
 
 </body>
 </html>
