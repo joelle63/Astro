@@ -88,6 +88,17 @@
             font-size: 36px;
             margin-bottom: 10px;
             color: var(--bleu-nuit);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        /* ⭐ Picto titre */
+        .picto-titre {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
         }
 
         .sous-titre {
@@ -135,27 +146,9 @@
             color: #B88E4A;
         }
 
-        .btn-print {
-            background: #D7BE82;
-            color: #1C2331;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            font-weight: 600;
-        }
-
-        .btn-print:hover {
-            background: #B88E4A;
-        }
-
         @media print {
             .bandeau,
-            nav,
-            .btn-print {
+            nav {
                 display: none !important;
             }
 
@@ -189,11 +182,16 @@
     </nav>
 
 <section>
-    <h2>☉ Cancer</h2>
+
+    <!-- ⭐ Titre avec ton vrai picto Cancer -->
+    <h2><img src="Cancer.png" alt="Cancer" class="picto-titre"> Cancer</h2>
+    
     <div class="sous-titre">"Je protège - je ressens"</div>
     <div class="decor"></div>
 
     <div class="texte">
+
+        <!-- (Ton contenu reste identique) -->
 
         <h3>Données fondamentales</h3>
         <ul class="liste-etoiles">
@@ -293,7 +291,6 @@
 
     </div>
 
-    <button onclick="window.print()" class="btn-print">Imprimer cette page</button>
 </section>
 
 </body>
