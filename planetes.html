@@ -106,7 +106,6 @@
             margin-top: 40px;
         }
 
-        /* 🌟 Carte élégante premium */
         .carte-planete {
             padding: 22px;
             background: #FBD78D;
@@ -124,7 +123,6 @@
             color: #2E2E2E;
         }
 
-        /* 🌟 SURVOL AMÉLIORÉ */
         .carte-planete:hover {
             background: #FFE3A8;
             transform: translateY(-6px);
@@ -145,6 +143,14 @@
 
         .carte-planete p {
             font-weight: 600;
+        }
+
+        /* Icônes planètes en image */
+        .picto-planete-img {
+            width: 28px;
+            height: 28px;
+            vertical-align: middle;
+            margin-right: 6px;
         }
 
     </style>
@@ -182,11 +188,17 @@
             <div class="carte-planete"><h3>☾ Lune</h3><p>Émotions — Mémoire</p></div>
             <div class="carte-planete"><h3>☿ Mercure</h3><p>Esprit — Communication</p></div>
 
-            <!-- ⭐ VENUS CORRIGÉE -->
-            <div class="carte-planete"><h3>&#9792; Vénus</h3><p>Affect — Harmonie</p></div>
+            <!-- ⭐ VÉNUS AVEC TON PICTO -->
+            <div class="carte-planete">
+                <h3>
+                    <img src="venus.png" alt="Vénus" class="picto-planete-img">
+                    Vénus
+                </h3>
+                <p>Affect — Harmonie</p>
+            </div>
 
-            <!-- ⭐ MARS CORRIGÉ -->
-            <div class="carte-planete"><h3>&#9794; Mars</h3><p>Action — Désir</p></div>
+            <!-- Mars encore en Unicode pour l’instant -->
+            <div class="carte-planete"><h3>♂ Mars</h3><p>Action — Désir</p></div>
 
             <div class="carte-planete"><h3>♃ Jupiter</h3><p>Expansion — Foi</p></div>
             <div class="carte-planete"><h3>♄ Saturne</h3><p>Structure — Temps</p></div>
