@@ -83,7 +83,7 @@
         /* PAGE SIGNES */
         section {
             max-width: 900px;
-            margin: 20px auto;
+            margin: 30px auto;
             padding: 0 20px;
             text-align: center;
         }
@@ -95,6 +95,11 @@
             color: var(--bleu-nuit);
         }
 
+        /* 👉 ESPACE RÉDUIT (3ᵉ ligne uniquement) */
+        .petit-espace {
+            margin-top: 8px;
+        }
+
         .signes {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -102,7 +107,7 @@
             margin-top: 40px;
         }
 
-        /* ⭐ CARTES ⭐ */
+        /* ⭐ CARTE SIGNES */
         .carte-signe {
             padding: 22px;
             background: #FBD78D;
@@ -123,19 +128,11 @@
             cursor: pointer;
         }
 
-        /* ⭐ Nouveau picto (sera remplacé par tes icônes stylisées) ⭐ */
-        .picto {
-            width: 50px;
-            height: 50px;
-            background: #1C1C1C;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 26px;
+        /* 👉 Le nouveau style de picto (gris foncé, image PNG) */
+        .picto-img {
+            width: 48px;
+            height: 48px;
             margin: 0 auto 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
 
         .carte-signe h3 {
@@ -147,11 +144,6 @@
 
         .carte-signe p {
             font-weight: 600;
-        }
-
-        /* ⭐ ESPACE RÉDUIT ENTRE 2ᵉ ET 3ᵉ LIGNE ⭐ */
-        .petit-espace {
-            margin-top: 5px;
         }
 
     </style>
@@ -186,7 +178,14 @@
             <div class="carte-signe"><div class="picto">♈</div><h3>Bélier</h3><p>Feu — Cardinal</p></div>
             <div class="carte-signe"><div class="picto">♉</div><h3>Taureau</h3><p>Terre — Fixe</p></div>
             <div class="carte-signe"><div class="picto">♊</div><h3>Gémeaux</h3><p>Air — Mutable</p></div>
-            <div class="carte-signe"><div class="picto">♋</div><h3>Cancer</h3><p>Eau — Cardinal</p></div>
+
+            <!-- ⭐ CANCER avec NOUVEAU PICTO -->
+            <div class="carte-signe">
+                <img src="cancer.png" alt="Cancer" class="picto-img">
+                <h3>Cancer</h3>
+                <p>Eau — Cardinal</p>
+            </div>
+
             <div class="carte-signe"><div class="picto">♌</div><h3>Lion</h3><p>Feu — Fixe</p></div>
             <div class="carte-signe"><div class="picto">♍</div><h3>Vierge</h3><p>Terre — Mutable</p></div>
             <div class="carte-signe"><div class="picto">♎</div><h3>Balance</h3><p>Air — Cardinal</p></div>
