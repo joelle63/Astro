@@ -1,170 +1,68 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zone technique – Au fil du Zodiaque</title>
+<script>
+function chercherVille() {
+    const ville = document.getElementById("ville").value.trim();
+    if (!ville) return;
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    const url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(ville);
 
-    <style>
-        :root {
-            --fond: #FAF8F5;
-            --texte: #2E2E2E;
-            --or: #D7BE82;
-            --or-fonce: #B88E4A;
-            --bleu-nuit: #1C2331;
-        }
+    fetch(url).then(res => res.json()).then(data => {
+        if (!data.length) { alert("Ville introuvable."); return; }
 
-        body {
-            background: var(--fond);
-            color: var(--texte);
-            font-family: "Lato", sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+        const latitude = parseFloat(data[0].lat);
+        const longitude = parseFloat(data[0].lon);
 
-        .bandeau {
-            width: 100%;
-            height: 180px;
-            overflow: hidden;
-            position: relative;
-        }
+        const lat_deg = Math.floor(Math.abs(latitude));
+        const lat_min = Math.round((Math.abs(latitude) - lat_deg) * 60);
+        const lat_txt = lat_deg + "° " + lat_min + "' " + (latitude >= 0 ? "N" : "S");
 
-        .bandeau img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        const total_seconds = Math.abs(longitude) * 240;
+        const long_h = Math.floor(total_seconds / 3600);
+        const long_m = Math.floor((total_seconds % 3600) / 60);
+        const long_s = Math.round(total_seconds % 60);
+        const long_txt = long_h + "h " + long_m + "m " + long_s + "s " + (longitude >= 0 ? "E" : "O");
 
-        .bandeau::after {
-            content: "";
-            background: rgba(215, 190, 130, 0.25);
-            position: absolute;
-            inset: 0;
-        }
+        document.getElementById("lat").textContent = lat_txt;
+        document.getElementById("lon").textContent = long_txt;
+    });
+}
 
-        .titre-bandeau {
-            position: absolute;
-            bottom: 60px;
-            left: 48%;
-            transform: translateX(-50%);
-            font-family: "Playfair Display", serif;
-            font-size: 33px;
-            color: #2E2E2E;
-            font-weight: 600;
-            text-shadow: 0 0 6px rgba(255,255,255,0.7);
-        }
+function calculHeures() {
+    const date = document.getElementById("dateNaissance").value;
+    const heure = document.getElementById("heureNaissance").value;
+    const lonTxt = document.getElementById("lon").textContent;
 
-        .contenu {
-            max-width: 700px;
-            margin: 30px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-        }
+    if (!date || !heure || lonTxt === "—") return;
 
-        h2 {
-            font-family: "Playfair Display", serif;
-            font-size: 32px;
-            color: var(--bleu-nuit);
-            text-align: center;
-        }
+    // Conversion en Date
+    const datetime = new Date(date + "T" + heure + ":00");
 
-        label { font-weight: 600; }
+    // Heure GMT
+    const gmt_h = ("0" + datetime.getUTCHours()).slice(-2);
+    const gmt_m = ("0" + datetime.getUTCMinutes()).slice(-2);
+    document.getElementById("heure_gtm").textContent = gmt_h + ":" + gmt_m;
 
-        input {
-            padding: 10px;
-            width: 100%;
-            font-size: 18px;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            border: 1px solid var(--or);
-            border-radius: 8px;
-        }
+    // Extraire longitude formatée
+    const match = lonTxt.match(/(\\d+)h (\\d+)m (\\d+)s (E|O)/);
+    if (!match) return;
 
-        .resultats {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            row-gap: 12px;
-            margin-top: 25px;
-            font-size: 20px;
-        }
+    const h = parseInt(match[1]);
+    const m = parseInt(match[2]);
+    const s = parseInt(match[3]);
+    const sign = match[4] === "E" ? 1 : -1;
 
-        .resultats div:first-child {
-            font-weight: 700;
-            color: var(--bleu-nuit);
-        }
-    </style>
+    // Conversion longitude -> degrés
+    const longitude_deg = sign * (h * 15 + m * 0.25 + s / 240);
 
-    <script>
-        async function chercherVille() {
-            const ville = document.getElementById("ville").value.trim();
-            if (!ville) return;
+    // Décalage en secondes (1° = 4 minutes = 240s)
+    const offset_sec = longitude_deg * 240;
 
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ville)}`;
-            const data = await fetch(url).then(res => res.json());
-            if (!data.length) { alert("Ville introuvable."); return; }
+    // Heure locale vraie (LMT)
+    const lmt = new Date(datetime.getTime() + offset_sec * 1000);
+    const l_h = ("0" + lmt.getUTCHours()).slice(-2);
+    const l_m = ("0" + lmt.getUTCMinutes()).slice(-2);
+    const l_s = ("0" + lmt.getUTCSeconds()).slice(-2);
 
-            const latitude = parseFloat(data[0].lat);
-            const longitude = parseFloat(data[0].lon);
+    document.getElementById("heure_locale").textContent = l_h + ":" + l_m + ":" + l_s;
+}
+</script>
 
-            const lat_deg = Math.floor(Math.abs(latitude));
-            const lat_min = Math.round((Math.abs(latitude) - lat_deg) * 60);
-            const lat_txt = `${lat_deg}° ${lat_min}' ${latitude >= 0 ? "N" : "S"}`;
-
-            const total_seconds = Math.abs(longitude) * 240;
-            const long_h = Math.floor(total_seconds / 3600);
-            const long_m = Math.floor((total_seconds % 3600) / 60);
-            const long_s = Math.round(total_seconds % 60);
-            const long_txt = `${long_h}h ${long_m}m ${long_s}s ${longitude >= 0 ? "E" : "O"}`;
-
-            document.getElementById("lat").textContent = lat_txt;
-            document.getElementById("lon").textContent = long_txt;
-        }
-
-        function calculHeures() {
-            const date = document.getElementById("dateNaissance").value;
-            const heure = document.getElementById("heureNaissance").value;
-            if (!date || !heure) return;
-
-            const datetime = new Date(`${date}:${gmt_m}`;
-            document.getElementById("heure_locale").textContent = heure;
-        }T${heure}:00`);
-
-            const gtm = new Date(datetime.getTime() - offset * 60000);
-
-            document.getElementById("heure_gtm").textContent = gtm.toTimeString().slice(0,5);
-            document.getElementById("heure_locale").textContent = heure;
-        }
-    </script>
-</head>
-
-<body>
-    <div class="bandeau">
-        <img src="header.jpg">
-        <div class="titre-bandeau">Au fil du Zodiaque</div>
-    </div>
-
-    <div class="contenu">
-        <h2>Zone technique</h2>
-
-        <label for="ville">Entrez une ville :</label>
-        <input id="ville" type="text" placeholder="Exemple : Paris" onblur="chercherVille()">
-
-        <label for="dateNaissance">Jour de naissance :</label>
-        <input id="dateNaissance" type="date" onchange="calculHeures()">
-
-        <label for="heureNaissance">Heure de naissance :</label>
-        <input id="heureNaissance" type="time" onchange="calculHeures()">
-
-        <div class="resultats">
-            <div>Latitude :</div><div id="lat">—</div>
-            <div>Longitude :</div><div id="lon">—</div>
-            <div>Heure GMT :</div><div id="heure_gtm">—</div>
-            <div>Heure locale :</div><div id="heure_locale">—</div>
-        </div>
-    </div>
-</body>
-</html>
