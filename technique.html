@@ -142,7 +142,8 @@ function calculHeures() {
     document.getElementById("heure_gtm").textContent = gmt_h + ":" + gmt_m;
 
     // Extraire longitude formatée
-    const match = lonTxt.match(/(\\d+)h (\\d+)m (\\d+)s (E|O)/);
+   const match = lonTxt.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
+
     if (!match) return;
 
     const h = parseInt(match[1]);
