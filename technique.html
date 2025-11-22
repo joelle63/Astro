@@ -155,7 +155,102 @@ function calcGMST0(dateStr) {
 
 // --- Calcul ---
 function calculHeures() {
-    const da
+    const date = document.getElementById("dateNaissance").value;
+    const heure = document.getElementById("heureNaissance").value;
+    const lonTxt = document.getElementById("lon").textContent;
+    if (!date || !heure || lonTxt === "—") return;
+
+    const dt = new Date(date + "T" + heure + ":00");
+
+    // Heure GMT
+    const gH = dt.getUTCHours();
+    const gM = dt.getUTCMinutes();
+    document.getElementById("heure_gtm").textContent =
+        `${String(gH).padStart(2,'0')}:${String(gM).padStart(2,'0')}`;
+
+    // Longitude
+    const mLon = lonTxt.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
+    if (!mLon) return;
+
+    const H = parseInt(mLon[1]);
+    const M = parseInt(mLon[2]);
+    const S = parseInt(mLon[3]);
+    const sign = mLon[4] === "E" ? 1 : -1;
+
+    const lon_deg = sign * (H * 15 + M * 0.25 + S / 240);
+    const offset_sec = lon_deg * 240;
+
+    // Heure locale vraie
+    const lmt = new Date(dt.getTime() + offset_sec * 1000);
+    const Lh = lmt.getUTCHours();
+    const Lm = lmt.getUTCMinutes();
+    const Ls = lmt.getUTCSeconds();
+    document.getElementById("heure_locale").textContent =
+        `${String(Lh).padStart(2,'0')}:${String(Lm).padStart(2,'0')}:${String(Ls).padStart(2,'0')}`;
+
+    // Temps sidéral
+    const gmst0 = calcGMST0(date);
+    let corr_ut = gH * 10 + (gM === 30 ? 5 : 0);
+    const corr_long = Math.floor(Math.abs(lon_deg)) * 4 * 60;
+
+    let ts_sec = gmst0 + corr_ut + corr_long + gH * 3600 + gM * 60;
+    ts_sec = ((ts_sec % 86400) + 86400) % 86400;
+
+    document.getElementById("ts").textContent =
+        `${String(Math.floor(ts_sec/3600)).padStart(2,'0')}:` +
+        `${String(Math.floor((ts_sec%3600)/60)).padStart(2,'0')}:` +
+        `${String(Math.floor(ts_sec%60)).padStart(2,'0')}`;
+
+    calcMaisons(ts_sec);
+}
+
+// --- Calcul simplifié ASC + MC + maisons Placidus ---
+function calcMaisons(ts_sec) {
+    const latTxt = document.getElementById("lat").textContent;
+    const mLat = latTxt.match(/(\d+)° (\d+)' (N|S)/);
+    if (!mLat) return;
+
+    const latitude = parseInt(mLat[1]) + parseInt(mLat[2]) / 60;
+    const phi = (mLat[3] === "N" ? 1 : -1) * latitude * Math.PI / 180;
+
+    const eps = 23.439291 * Math.PI / 180;
+    const LST = (ts_sec / 86400) * 2 * Math.PI;
+
+    // MC
+    const MC = (Math.atan2(Math.sin(LST), Math.cos(LST)) * 180 / Math.PI + 360) % 360;
+
+    // Ascendant
+    const ASC = (Math.atan2(
+        Math.cos(LST),
+        -Math.sin(LST) * Math.cos(eps) - Math.tan(phi) * Math.sin(eps)
+    ) * 180 / Math.PI + 360) % 360;
+
+    // Maisons simplifiées Placidus (approx)
+    const H2 = (ASC + 30) % 360;
+    const H3 = (ASC + 60) % 360;
+    const H5 = (ASC + 120) % 360;
+    const H6 = (ASC + 150) % 360;
+
+    // Insertion si pas encore créé
+    const res = document.querySelector(".resultats");
+
+    if (!document.getElementById("asc")) {
+        res.insertAdjacentHTML("beforeend",
+        `<div>Ascendant :</div><div id="asc">—</div>
+         <div>Milieu du Ciel :</div><div id="mc">—</div>
+         <div>Maison II :</div><div id="h2">—</div>
+         <div>Maison III :</div><div id="h3">—</div>
+         <div>Maison V :</div><div id="h5">—</div>
+         <div>Maison VI :</div><div id="h6">—</div>`);
+    }
+
+    document.getElementById("asc").textContent = degToSign(ASC);
+    document.getElementById("mc").textContent  = degToSign(MC);
+    document.getElementById("h2").textContent  = degToSign(H2);
+    document.getElementById("h3").textContent  = degToSign(H3);
+    document.getElementById("h5").textContent  = degToSign(H5);
+    document.getElementById("h6").textContent  = degToSign(H6);
+}
 
 </script>
 </head>
