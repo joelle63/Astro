@@ -98,6 +98,7 @@
         }
     </style>
 
+<script>
 // --- Récupération ville : latitude + longitude ---
 async function chercherVille() {
     const ville = document.getElementById("ville").value.trim();
@@ -181,7 +182,7 @@ function calculHeures() {
     calcAscMc(ts_sec);
 }
 
-// --- Ascendant + MC (Placidus) ---
+// --- Ascendant + MC ---
 function calcAscMc(ts_sec) {
     const latTxt = document.getElementById("lat").textContent;
     const match = latTxt.match(/(\d+)° (\d+)' (N|S)/);
@@ -214,7 +215,6 @@ function calcAscMc(ts_sec) {
              <div>Milieu du Ciel :</div><div id="mc">—</div>`);
     }
 
-    // Signes
     const zodiac = [
         "Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge",
         "Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"
@@ -227,8 +227,7 @@ function calcAscMc(ts_sec) {
     document.getElementById("mc").textContent =
         mc_deg + "° " + mc_min + "' (" + signOf(MC) + ")";
 }
-
-
+</script>
 
 </head>
 
