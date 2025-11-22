@@ -99,7 +99,21 @@
     </style>
 
     <script>
-   // --- Recherche ville : latitude + longitude ---
+// --- Conversion degré → signe ---
+function degToSign(deg) {
+    const signs = [
+        "Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge",
+        "Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"
+    ];
+    const signIndex = Math.floor(deg / 30);
+    const signName = signs[signIndex];
+    const degInSign = deg % 30;
+    const d = Math.floor(degInSign);
+    const m = Math.round((degInSign - d) * 60);
+    return `${d}°${m.toString().padStart(2,'0')}' ${signName}`;
+}
+
+// --- Récupération ville ---
 async function chercherVille() {
     const ville = document.getElementById("ville").value.trim();
     if (!ville) return;
@@ -116,16 +130,15 @@ async function chercherVille() {
     document.getElementById("lat").textContent =
         `${lat_deg}° ${lat_min}' ${latitude >= 0 ? "N" : "S"}`;
 
-    const total_seconds = Math.abs(longitude) * 240;
-    const h = Math.floor(total_seconds / 3600);
-    const m = Math.floor((total_seconds % 3600) / 60);
-    const s = Math.round(total_seconds % 60);
-
+    const tot = Math.abs(longitude) * 240;
+    const h = Math.floor(tot / 3600);
+    const m = Math.floor((tot % 3600) / 60);
+    const s = Math.round(tot % 60);
     document.getElementById("lon").textContent =
         `${h}h ${m}m ${s}s ${longitude >= 0 ? "E" : "O"}`;
 }
 
-// --- Temps sidéral à 0h GMT ---
+// --- Temps sidéral à 0h ---
 function calcGMST0(dateStr) {
     const d = new Date(dateStr + "T00:00:00Z");
     const JD = d.getTime() / 86400000 + 2440587.5;
@@ -133,97 +146,17 @@ function calcGMST0(dateStr) {
 
     let GMST = 24110.54841 +
                8640184.812866 * T +
-               0.093104 * T * T -
-               6.2e-6 * T * T * T;
+               0.093104 * T*T -
+               6.2e-6 * T*T*T;
 
     GMST = ((GMST % 86400) + 86400) % 86400;
     return GMST;
 }
 
-// --- Calcul heures + TS + maisons ---
+// --- Calcul ---
 function calculHeures() {
-    const date = document.getElementById("dateNaissance").value;
-    const heure = document.getElementById("heureNaissance").value;
-    const lonTxt = document.getElementById("lon").textContent;
-    const latTxt = document.getElementById("lat").textContent;
+    const da
 
-    if (!date || !heure || lonTxt === "—" || latTxt === "—") return;
-
-    const dt = new Date(date + "T" + heure + ":00");
-
-    // Heure GMT
-    const gH = ("0" + dt.getUTCHours()).slice(-2);
-    const gM = ("0" + dt.getUTCMinutes()).slice(-2);
-    document.getElementById("heure_gtm").textContent = `${gH}:${gM}`;
-
-    const matchLon = lonTxt.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
-    if (!matchLon) return;
-
-    const H = parseInt(matchLon[1]);
-    const M = parseInt(matchLon[2]);
-    const S = parseInt(matchLon[3]);
-    const sign = matchLon[4] === "E" ? 1 : -1;
-
-    const lon_deg = sign * (H * 15 + M * 0.25 + S/240);
-    const offset = lon_deg * 240;
-
-    // Heure locale vraie (LMT)
-    const lmt = new Date(dt.getTime() + offset * 1000);
-    const Lh = ("0" + lmt.getUTCHours()).slice(-2);
-    const Lm = ("0" + lmt.getUTCMinutes()).slice(-2);
-    const Ls = ("0" + lmt.getUTCSeconds()).slice(-2);
-
-    document.getElementById("heure_locale").textContent = `${Lh}:${Lm}:${Ls}`;
-
-    // Temps sidéral
-    const jd = dt.getTime() / 86400000 + 2440587.5;
-    const gmst0 = calcGMST0(date);
-
-    let corr_ut = parseInt(gH) * 10;
-    if (gM === "30") corr_ut += 5;
-
-    const deg_int = Math.floor(Math.abs(lon_deg));
-    const corr_long = deg_int * 4 * 60;
-
-    let ts_sec = gmst0 + corr_ut + corr_long + parseInt(gH)*3600 + parseInt(gM)*60;
-    ts_sec = ((ts_sec % 86400)+86400)%86400;
-
-    const tsH = ("0" + Math.floor(ts_sec/3600)).slice(-2);
-    const tsM = ("0" + Math.floor((ts_sec%3600)/60)).slice(-2);
-    const tsS = ("0" + Math.floor(ts_sec%60)).slice(-2);
-    document.getElementById("ts").textContent = `${tsH}:${tsM}:${tsS}`;
-
-    const tsDeg = ts_sec / 240; // 86400s → 360°
-
-    // Latitude
-    const matchLat = latTxt.match(/(\d+)° (\d+)' (N|S)/);
-    if (!matchLat) return;
-
-    const latDeg = parseInt(matchLat[1]) + parseInt(matchLat[2])/60;
-    const latFinal = matchLat[3] === "S" ? -latDeg : latDeg;
-
-    // Appel moteur Placidus
-    const houses = AstroVSOP.computeHouses(jd, latFinal, tsDeg);
-
-    // Affichage
-    insertHouse("asc", houses.asc);
-    insertHouse("mc", houses.mc);
-    insertHouse("h2", houses.h2);
-    insertHouse("h3", houses.h3);
-    insertHouse("h5", houses.h5);
-    insertHouse("h6", houses.h6);
-}
-
-function insertHouse(id, h) {
-    let el = document.getElementById(id);
-    if (!el) {
-        const zone = document.querySelector('.resultats');
-        zone.insertAdjacentHTML("beforeend", `<div>${id.toUpperCase()} :</div><div id="${id}">—</div>`);
-        el = document.getElementById(id);
-    }
-    el.textContent = `${h.txt} ${h.sign}`;
-}
-     
 </script>
 </head>
 
