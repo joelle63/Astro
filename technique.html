@@ -124,23 +124,25 @@
             document.getElementById("lon").textContent = long_txt;
         }
 
-       function calculHeures() {
-    const date = document.getElementById("dateNaissance").value;
-    const heure = document.getElementById("heureNaissance").value;
-    if (!date || !heure) return;
+        function calculHeures() {
+            const date = document.getElementById("dateNaissance").value;
+            const heure = document.getElementById("heureNaissance").value;
+            if (!date || !heure) return;
 
-    // Construire l'objet Date à partir de l'heure saisie
-    const datetime = new Date(`${date}T${heure}:00`);
+            const datetime = new Date(`${date}T${heure}:00`);
 
-    // Heure GMT correcte
-    const gmt_h = String(datetime.getUTCHours()).padStart(2, '0');
-    const gmt_m = String(datetime.getUTCMinutes()).padStart(2, '0');
-    document.getElementById("heure_gtm").textContent = `${gmt_h}:${gmt_m}`;
+            const gmt_h = String(datetime.getUTCHours()).padStart(2, '0');
+            const gmt_m = String(datetime.getUTCMinutes()).padStart(2, '0');
 
-    // Pour l'instant : heure saisie = heure locale affichée
-    document.getElementById("heure_locale").textContent = heure;
-}
+            document.getElementById("heure_gtm").textContent = `${gmt_h}:${gmt_m}`;
+            document.getElementById("heure_locale").textContent = heure;
+        }T${heure}:00`);
 
+            const gtm = new Date(datetime.getTime() - offset * 60000);
+
+            document.getElementById("heure_gtm").textContent = gtm.toTimeString().slice(0,5);
+            document.getElementById("heure_locale").textContent = heure;
+        }
     </script>
 </head>
 
