@@ -98,7 +98,9 @@
         }
     </style>
 
-  <script async function chercherVille() {
+<script type="module">
+ import { computeChart } from './placidus.js';  
+    async function chercherVille() {
     const ville = document.getElementById("ville").value.trim();
     if (!ville) return;
 
