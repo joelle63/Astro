@@ -98,77 +98,112 @@
         }
     </style>
 
-    <script>
-        async function chercherVille() {
-            const ville = document.getElementById("ville").value.trim();
-            if (!ville) return;
+   <script>
+// --- Récupération ville, latitude et longitude ---
+async function chercherVille() {
+    const ville = document.getElementById("ville").value.trim();
+    if (!ville) return;
 
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ville)}`;
-            const data = await fetch(url).then(res => res.json());
-            if (!data.length) { alert("Ville introuvable."); return; }
+    const url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(ville);
+    const data = await fetch(url).then(res => res.json());
+    if (!data.length) { alert("Ville introuvable."); return; }
 
-            const latitude = parseFloat(data[0].lat);
-            const longitude = parseFloat(data[0].lon);
+    const latitude = parseFloat(data[0].lat);
+    const longitude = parseFloat(data[0].lon);
 
-            const lat_deg = Math.floor(Math.abs(latitude));
-            const lat_min = Math.round((Math.abs(latitude) - lat_deg) * 60);
-            const lat_txt = `${lat_deg}° ${lat_min}' ${latitude >= 0 ? "N" : "S"}`;
+    const lat_deg = Math.floor(Math.abs(latitude));
+    const lat_min = Math.round((Math.abs(latitude) - lat_deg) * 60);
+    const lat_txt = lat_deg + "° " + lat_min + "' " + (latitude >= 0 ? "N" : "S");
 
-            const total_seconds = Math.abs(longitude) * 240;
-            const long_h = Math.floor(total_seconds / 3600);
-            const long_m = Math.floor((total_seconds % 3600) / 60);
-            const long_s = Math.round(total_seconds % 60);
-            const long_txt = `${long_h}h ${long_m}m ${long_s}s ${longitude >= 0 ? "E" : "O"}`;
+    const total_seconds = Math.abs(longitude) * 240;
+    const long_h = Math.floor(total_seconds / 3600);
+    const long_m = Math.floor((total_seconds % 3600) / 60);
+    const long_s = Math.round(total_seconds % 60);
+    const long_txt = long_h + "h " + long_m + "m " + long_s + "s " + (longitude >= 0 ? "E" : "O");
 
-            document.getElementById("lat").textContent = lat_txt;
-            document.getElementById("lon").textContent = long_txt;
-        }
+    document.getElementById("lat").textContent = lat_txt;
+    document.getElementById("lon").textContent = long_txt;
+}
 
-        function calcGMST0(dateStr) {
+// --- Temps sidéral à 0h GMT (GMST0) en secondes ---
+function calcGMST0(dateStr) {
     const d = new Date(dateStr + "T00:00:00Z");
-    const JD = (d / 86400000) + 2440587.5;
+    const JD = (d.getTime() / 86400000) + 2440587.5;
     const T = (JD - 2451545.0) / 36525;
-    let GMST = 24110.54841 + 8640184.812866 * T + 0.093104 * T*T - 6.2e-6 * T*T*T;
+
+    let GMST = 24110.54841
+             + 8640184.812866 * T
+             + 0.093104 * T * T
+             - 6.2e-6 * T * T * T;
+
     GMST = ((GMST % 86400) + 86400) % 86400;
     return GMST;
 }
 
+// --- Calculs heures + temps sidéral ---
 function calculHeures() {
-            const date = document.getElementById("dateNaissance").value;
-            const heure = document.getElementById("heureNaissance").value;
-            if (!date || !heure) return;
+    const date = document.getElementById("dateNaissance").value;
+    const heure = document.getElementById("heureNaissance").value;
+    const lonTxt = document.getElementById("lon").textContent;
+    if (!date || !heure || lonTxt === "—") return;
 
-            const datetime = new Date(`${date}:${gmt_m}`;
-            document.getElementById("heure_locale").textContent = l_h + ":" + l_m + ":" + l_s;
+    const datetime = new Date(date + "T" + heure + ":00");
 
-    // Temps sidéral (méthode astrologique traditionnelle)
-    // GMST0 = temps sidéral à 0h GMT (calculé via algorithme simplifié)
+    // Heure GMT (UT)
+    const gmt_h = ("0" + datetime.getUTCHours()).slice(-2);
+    const gmt_m = ("0" + datetime.getUTCMinutes()).slice(-2);
+    document.getElementById("heure_gtm").textContent = gmt_h + ":" + gmt_m;
+
+    // Extraction longitude
+    const match = lonTxt.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
+    if (!match) return;
+
+    const h = parseInt(match[1]);
+    const m = parseInt(match[2]);
+    const s = parseInt(match[3]);
+    const sign = match[4] === "E" ? 1 : -1;
+
+    const longitude_deg = sign * (h * 15 + m * 0.25 + s / 240);
+    const offset_sec = longitude_deg * 240;
+
+    // Heure locale vraie
+    const lmt = new Date(datetime.getTime() + offset_sec * 1000);
+    const l_h = ("0" + lmt.getUTCHours()).slice(-2);
+    const l_m = ("0" + lmt.getUTCMinutes()).slice(-2);
+    const l_s = ("0" + lmt.getUTCSeconds()).slice(-2);
+    document.getElementById("heure_locale").textContent =
+        l_h + ":" + l_m + ":" + l_s;
+
+    // --- TEMPS SIDÉRAL ASTROLOGIQUE (méthode traditionnelle) ---
+
+    // GMST0 du jour
     const gmst0 = calcGMST0(date);
 
-    // Correction UT : 10 secondes par heure GMT + 5s si 30 min
-    const corr_ut = (parseInt(gmt_h) * 10) + (gmt_m === "30" ? 5 : 0);
+    // Correction UT : 10s par heure GMT + 5s si 30 min
+    let corr_ut = parseInt(gmt_h) * 10;
+    if (gmt_m === "30") corr_ut += 5;
 
     // Correction longitude : 4 minutes × degrés entiers
     const deg_entier = Math.floor(Math.abs(longitude_deg));
-    const corr_long = deg_entier * 4 * 60;
+    const corr_long = deg_entier * 4 * 60; // en secondes
 
-    // TS corrigé = gmst0 + corrections
-    let ts_sec = gmst0 + corr_ut + corr_long + (parseInt(gmt_h) * 3600 + parseInt(gmt_m) * 60);
+    // Temps sidéral = GMST0 + corrections + heure GMT convertie en secondes
+    let ts_sec = gmst0
+               + corr_ut
+               + corr_long
+               + (parseInt(gmt_h) * 3600 + parseInt(gmt_m) * 60);
+
     ts_sec = ((ts_sec % 86400) + 86400) % 86400;
 
-    const th = ("0" + Math.floor(ts_sec / 3600)).slice(-2);
-    const tm = ("0" + Math.floor((ts_sec % 3600) / 60)).slice(-2);
-    const ts = ("0" + Math.floor(ts_sec % 60)).slice(-2);
+    const ts_h = ("0" + Math.floor(ts_sec / 3600)).slice(-2);
+    const ts_m = ("0" + Math.floor((ts_sec % 3600) / 60)).slice(-2);
+    const ts_s = ("0" + Math.floor(ts_sec % 60)).slice(-2);
 
-    document.getElementById("ts").textContent = th + ":" + tm + ":" + ts;
-        }T${heure}:00`);
+    document.getElementById("ts").textContent =
+        ts_h + ":" + ts_m + ":" + ts_s;
+}
+</script>
 
-            const gtm = new Date(datetime.getTime() - offset * 60000);
-
-            document.getElementById("heure_gtm").textContent = gtm.toTimeString().slice(0,5);
-            document.getElementById("heure_locale").textContent = heure;
-        }
-    </script>
 </head>
 
 <body>
