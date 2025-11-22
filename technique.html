@@ -125,7 +125,7 @@ async function chercherVille() {
         `${h}h ${m}m ${s}s ${longitude >= 0 ? "E" : "O"}`;
 }
 
-// === Temps sidéral à 0h GMT (méthode astrologique simplifiée) ===
+// === Temps sidéral à 0h GMT ===
 function calcGMST0(dateStr) {
     const d = new Date(dateStr + "T00:00:00Z");
     const JD = d.getTime() / 86400000 + 2440587.5;
@@ -139,12 +139,29 @@ function calcGMST0(dateStr) {
     return ((GMST % 86400) + 86400) % 86400;
 }
 
-// === Calcul TS, LMT, Ascendant et MC ===
+// === Utilitaires astrologiques ===
+const zodiac = ["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge",
+                 "Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
+
+function signeOf(deg) {
+    return zodiac[Math.floor(((deg % 360) + 360) % 360 / 30)];
+}
+
+function degDansSigne(deg) {
+    return (((deg % 360) + 360) % 360) % 30;
+}
+
+function formatDM(deg) {
+    const d = Math.floor(deg);
+    const m = Math.round((deg - d) * 60);
+    return `${d}° ${("0" + m).slice(-2)}'`;
+}
+
+// === Calculs horaires ===
 function calculHeures() {
     const date = document.getElementById("dateNaissance").value;
     const heure = document.getElementById("heureNaissance").value;
     const lonTxt = document.getElementById("lon").textContent;
-
     if (!date || !heure || lonTxt === "—") return;
 
     const dt = new Date(date + "T" + heure + ":00");
@@ -162,9 +179,9 @@ function calculHeures() {
     const sign = m[4] === "E" ? 1 : -1;
 
     const lon_deg = sign * (H * 15 + MM * 0.25 + SS / 240);
-    const offset = lon_deg * 240;
 
-    // LMT
+    // Heure locale vraie (LMT)
+    const offset = lon_deg * 240;
     const lmt = new Date(dt.getTime() + offset * 1000);
     const Lh = ("0" + lmt.getUTCHours()).slice(-2);
     const Lm = ("0" + lmt.getUTCMinutes()).slice(-2);
@@ -193,68 +210,63 @@ function calculHeures() {
         `${("0"+Math.floor((ts_sec%3600)/60)).slice(-2)}:` +
         `${("0"+Math.floor(ts_sec%60)).slice(-2)}`;
 
-    calcAscMc(ts_sec);
+    calcMaisons(ts_sec);
 }
 
-// === Placidus : Ascendant + MC astrologiques ===
-function calcAscMc(ts_sec) {
+// === Ascendant, MC et Maison II en Placidus ===
+function calcMaisons(ts_sec) {
 
-    // ---- Latitude ----
+    // Latitude
     const latTxt = document.getElementById("lat").textContent;
     const m = latTxt.match(/(\d+)° (\d+)' (N|S)/);
-    const latitude = parseInt(m[1]) + parseInt(m[2]) / 60;
-    const phi = (m[3] === "N" ? 1 : -1) * latitude * Math.PI / 180;
+    const latitude = (parseInt(m[1]) + parseInt(m[2])/60) * (m[3] === "N" ? 1 : -1);
+    const phi = latitude * Math.PI / 180;
 
-    // ---- Constantes astrologiques ----
-    const eps = 23.439291 * Math.PI / 180;
-    const LST = ts_sec * (2 * Math.PI / 86400);
+    const eps = 23.439291 * Math.PI/180;
+    const LST = ts_sec * (2*Math.PI / 86400);
 
-    // ---- MC astrologique ----
-    const MC = ((Math.atan2(Math.sin(LST), Math.cos(LST) * Math.cos(eps))) * 180 / Math.PI + 360) % 360;
+    // MC astrologique
+    const MC = ((Math.atan2(Math.sin(LST), Math.cos(LST)*Math.cos(eps))) *180/Math.PI +360)%360;
 
-    // ---- Ascendant astrologique ----
+    // Ascendant astrologique
     const ASC = (Math.atan2(
         Math.cos(LST),
-        -Math.sin(LST) * Math.cos(eps) - Math.tan(phi) * Math.sin(eps)
-    ) * 180 / Math.PI + 360) % 360;
+        -Math.sin(LST)*Math.cos(eps) - Math.tan(phi)*Math.sin(eps)
+    ) *180/Math.PI +360)%360;
 
-    // ---- Signes ----
-    const zodiac = [
-        "Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge",
-        "Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"
-    ];
-
-    function signeOf(deg) { return zodiac[Math.floor(deg / 30)]; }
-    function degDansSigne(deg) { return deg % 30; }
-
-    // ---- Conversion degrés + minutes ----
-    function formatDM(deg) {
-        const d = Math.floor(deg);
-        const m = Math.round((deg - d) * 60);
-        return `${d}° ${("0"+m).slice(-2)}'`;
+    // Maison II (approx Placidus par itération)
+    function placidusCusp(k) {
+        let RA = LST + k * (Math.PI/6);
+        for (let i = 0; i < 8; i++) {
+            RA = LST + Math.atan(Math.tan(RA - LST) * Math.cos(phi));
+        }
+        return (RA *180/Math.PI +360)%360;
     }
 
-    const ascSigne = signeOf(ASC);
-    const ascDeg = degDansSigne(ASC);
+    const C2 = placidusCusp(1);
 
-    const mcSigne = signeOf(MC);
-    const mcDeg = degDansSigne(MC);
+    // Conversion astrologique
+    const ascS = signeOf(ASC);
+    const ascD = degDansSigne(ASC);
 
-    // ---- Injection dans la page ----
+    const mcS  = signeOf(MC);
+    const mcD  = degDansSigne(MC);
+
+    const m2S  = signeOf(C2);
+    const m2D  = degDansSigne(C2);
+
+    // Injection si première fois
     if (!document.getElementById("asc")) {
         const zone = document.querySelector(".resultats");
-        zone.insertAdjacentHTML(
-            "beforeend",
+        zone.insertAdjacentHTML("beforeend",
             `<div>Ascendant :</div><div id="asc">—</div>
-             <div>Milieu du Ciel :</div><div id="mc">—</div>`
-        );
+             <div>Milieu du Ciel :</div><div id="mc">—</div>
+             <div>Maison II :</div><div id="m2">—</div>`);
     }
 
-    document.getElementById("asc").textContent =
-        formatDM(ascDeg) + " " + ascSigne;
-
-    document.getElementById("mc").textContent =
-        formatDM(mcDeg) + " " + mcSigne;
+    document.getElementById("asc").textContent = `${formatDM(ascD)} ${ascS}`;
+    document.getElementById("mc").textContent  = `${formatDM(mcD)} ${mcS}`;
+    document.getElementById("m2").textContent  = `${formatDM(m2D)} ${m2S}`;
 }
 
 </script>
