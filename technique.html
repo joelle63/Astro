@@ -127,11 +127,16 @@
         function calculHeures() {
             const date = document.getElementById("dateNaissance").value;
             const heure = document.getElementById("heureNaissance").value;
-            const offset = new Date().getTimezoneOffset();
-
             if (!date || !heure) return;
 
             const datetime = new Date(`${date}T${heure}:00`);
+
+            const gmt_h = String(datetime.getUTCHours()).padStart(2, '0');
+            const gmt_m = String(datetime.getUTCMinutes()).padStart(2, '0');
+
+            document.getElementById("heure_gtm").textContent = `${gmt_h}:${gmt_m}`;
+            document.getElementById("heure_locale").textContent = heure;
+        }T${heure}:00`);
 
             const gtm = new Date(datetime.getTime() - offset * 60000);
 
