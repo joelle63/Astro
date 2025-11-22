@@ -99,31 +99,38 @@
     </style>
 
 <script>
-// ========================
-//  FONCTIONS UTILITAIRES
-// ========================
-const zodiac = ["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge",
-    "Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
+// ===============
+// Utilitaires
+// ===============
+const zodiac = [
+    "Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge",
+    "Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"
+];
 
-function signeOf(deg){ return zodiac[Math.floor(((deg%360)+360)%360 / 30)]; }
-
+function signeOf(deg){
+    return zodiac[Math.floor(((deg % 360) + 360) % 360 / 30)];
+}
+function degDansSigne(deg){
+    return (((deg % 360) + 360) % 360) % 30;
+}
 function fmtDM(deg){
     let d = Math.floor(deg);
     let m = Math.round((deg - d) * 60);
     return `${d}° ${("0"+m).slice(-2)}'`;
 }
+function norm(x){
+    return ((x % 360) + 360) % 360;
+}
 
-function norm(x){ return ((x % 360) + 360) % 360; }
-
-// ========================
-//  LAT / LON PAR VILLE
-// ========================
+// ===============
+// Latitude / Longitude via Nominatim
+// ===============
 async function chercherVille(){
     const ville = document.getElementById("ville").value.trim();
     if(!ville) return;
 
-    const url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(ville);
-    const data = await fetch(url).then(r => r.json());
+    const url = "https://nominatim.openstreetmap.org/search?format=json&q="+encodeURIComponent(ville);
+    const data = await fetch(url).then(r=>r.json());
 
     if(!data.length){ alert("Ville introuvable"); return; }
 
@@ -132,6 +139,7 @@ async function chercherVille(){
 
     const lat_deg = Math.floor(Math.abs(lat));
     const lat_min = Math.round((Math.abs(lat)-lat_deg)*60);
+
     document.getElementById("lat").textContent =
         `${lat_deg}° ${lat_min}' ${lat>=0?"N":"S"}`;
 
@@ -139,27 +147,32 @@ async function chercherVille(){
     const h = Math.floor(sec/3600);
     const m = Math.floor((sec%3600)/60);
     const s = Math.round(sec%60);
+
     document.getElementById("lon").textContent =
         `${h}h ${m}m ${s}s ${lon>=0?"E":"O"}`;
 }
 
-// ========================
-//  TEMPS SIDÉRAL A 0H
-// ========================
+// ===============
+// Temps sidéral 0h GMT
+// ===============
 function gmst0(dateStr){
     const d = new Date(dateStr + "T00:00:00Z");
     const JD = d.getTime()/86400000 + 2440587.5;
     const T = (JD - 2451545) / 36525;
-    let GMST = 24110.54841 + 8640184.812866*T + 0.093104*T*T - 6.2e-6*T*T*T;
+    let GMST = 24110.54841 +
+               8640184.812866*T +
+               0.093104*T*T -
+               6.2e-6*T*T*T;
+
     return ((GMST % 86400) + 86400) % 86400;
 }
 
-// ========================
-//  ASCENDANT & MC (CORRECTS)
-// ========================
+// ===============
+// Ascendant + MC
+// ===============
 function ascMC(ts_sec, lat_deg){
-    const eps = 23.439291 * Math.PI/180;
-    const LST = (ts_sec / 86400) * 2 * Math.PI;
+    const eps = 23.439291*Math.PI/180;
+    const LST = ts_sec * (2*Math.PI/86400);
     const phi = lat_deg * Math.PI/180;
 
     let MC_rad = Math.atan2(Math.sin(LST), Math.cos(LST));
@@ -174,12 +187,12 @@ function ascMC(ts_sec, lat_deg){
     return {ASC, MC};
 }
 
-// ========================
-//  PLACIDUS — MAISONS II / III / V / VI
-// ========================
+// ===============
+// Placidus exact — Maisons II / III / V / VI
+// ===============
 function placidusCusps(ASC, MC, lat_deg){
-    const eps = 23.439291 * Math.PI/180;
-    const phi = lat_deg * Math.PI/180;
+    const eps = 23.439291*Math.PI/180;
+    const phi = lat_deg*Math.PI/180;
 
     function RAfromEcl(lambda){
         return Math.atan2(Math.sin(lambda)*Math.cos(eps), Math.cos(lambda));
@@ -188,31 +201,33 @@ function placidusCusps(ASC, MC, lat_deg){
         return Math.atan2(Math.sin(RA)/Math.cos(eps), Math.cos(RA));
     }
 
-    function cuspOffset(baseRA, div){
-        let target = baseRA + Math.PI/div;
+    function cuspOffset(RA_base, div){
+        let RA = RA_base + Math.PI/div;
         for(let i=0;i<15;i++){
-            let lam = EclFromRA(target);
-            let h = Math.asin(Math.sin(phi)*Math.sin(lam)*Math.sin(eps)
-                    + Math.cos(phi)*Math.cos(lam));
-            target = baseRA + (Math.PI/div)*(1/Math.cos(h));
+            let lambda = EclFromRA(RA);
+            let h = Math.asin(
+                Math.sin(phi)*Math.sin(lambda)*Math.sin(eps) +
+                Math.cos(phi)*Math.cos(lambda)
+            );
+            RA = RA_base + (Math.PI/div)*(1/Math.cos(h));
         }
-        return norm(EclFromRA(target) * 180/Math.PI);
+        return norm(EclFromRA(RA)*180/Math.PI);
     }
 
-    const RA_MC = RAfromEcl(MC * Math.PI/180);
-    const RA_ASC = RAfromEcl(ASC * Math.PI/180);
+    const RA_ASC = RAfromEcl(ASC*Math.PI/180);
+    const RA_MC  = RAfromEcl(MC*Math.PI/180);
 
-    const house2 = cuspOffset(RA_ASC, 3);
-    const house3 = cuspOffset(RA_ASC, 1.5);
-    const house5 = cuspOffset(RA_MC, 3);
-    const house6 = cuspOffset(RA_MC, 1.5);
+    const M2 = cuspOffset(RA_ASC,3);
+    const M3 = cuspOffset(RA_ASC,1.5);
+    const M5 = cuspOffset(RA_MC,3);
+    const M6 = cuspOffset(RA_MC,1.5);
 
-    return {house2, house3, house5, house6};
+    return {M2, M3, M5, M6};
 }
 
-// ========================
-//  CALCUL GLOBAL
-// ========================
+// ===============
+// Calcul global
+// ===============
 function calculHeures(){
     const date = document.getElementById("dateNaissance").value;
     const heure = document.getElementById("heureNaissance").value;
@@ -220,60 +235,95 @@ function calculHeures(){
 
     if(!date || !heure || lonTxt==="—") return;
 
-    const dt = new Date(date + "T" + heure + ":00");
+    const dt = new Date(date+"T"+heure+":00");
+
     const gH = ("0"+dt.getUTCHours()).slice(-2);
     const gM = ("0"+dt.getUTCMinutes()).slice(-2);
+
     document.getElementById("heure_gtm").textContent = `${gH}:${gM}`;
 
+    // Longitude
     const m = lonTxt.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
     const H = parseInt(m[1]);
     const MM = parseInt(m[2]);
     const SS = parseInt(m[3]);
     const sign = m[4]==="E"?1:-1;
+
     const lon_deg = sign*(H*15 + MM*0.25 + SS/240);
 
+    // LMT
     const offset = lon_deg * 240;
     const lmt = new Date(dt.getTime() + offset*1000);
+
     const Lh = ("0"+lmt.getUTCHours()).slice(-2);
     const Lm = ("0"+lmt.getUTCMinutes()).slice(-2);
     const Ls = ("0"+lmt.getUTCSeconds()).slice(-2);
-    document.getElementById("heure_locale").textContent = `${Lh}:${Lm}:${Ls}`;
 
+    document.getElementById("heure_locale").textContent =
+        `${Lh}:${Lm}:${Ls}`;
+
+    // TS
     const ts0 = gmst0(date);
     let corr_ut = parseInt(gH)*10 + (gM==="30"?5:0);
     const deg_int = Math.floor(Math.abs(lon_deg));
     const corr_long = deg_int * 4 * 60;
-    let ts_sec = (ts0 + corr_ut + corr_long + parseInt(gH)*3600 + parseInt(gM)*60) % 86400;
-    if(ts_sec<0) ts_sec += 86400;
+
+    let ts_sec =
+        ts0 +
+        corr_ut +
+        corr_long +
+        parseInt(gH)*3600 +
+        parseInt(gM)*60;
+
+    ts_sec = ((ts_sec % 86400) + 86400) % 86400;
 
     document.getElementById("ts").textContent =
-        `${("0"+Math.floor(ts_sec/3600)).slice(-2)}:` +
-        `${("0"+Math.floor((ts_sec%3600)/60)).slice(-2)}:` +
+        `${("0"+Math.floor(ts_sec/3600)).slice(-2)}:`+
+        `${("0"+Math.floor((ts_sec%3600)/60)).slice(-2)}:`+
         `${("0"+Math.floor(ts_sec%60)).slice(-2)}`;
 
+    // Latitude
     const latTxt = document.getElementById("lat").textContent;
-    const mlat = latTxt.match(/(\d+)° (\d+)' (N|S)/);
-    const lat_deg = (parseInt(mlat[1]) + parseInt(mlat[2])/60) * (mlat[3]==="N"?1:-1);
+    const ml = latTxt.match(/(\d+)° (\d+)' (N|S)/);
+    const lat_deg = (parseInt(ml[1]) + parseInt(ml[2])/60) * (ml[3]==="N"?1:-1);
 
+    // ASC + MC
     const {ASC, MC} = ascMC(ts_sec, lat_deg);
-    const {house2, house3, house5, house6} = placidusCusps(ASC, MC, lat_deg);
 
-    // Suppression ancienne version si déjà affichée
+    // PLACIDUS vrais
+    const {M2, M3, M5, M6} = placidusCusps(ASC, MC, lat_deg);
+
+    // Injection propre
+    const zone = document.querySelector(".resultats");
+
+    // Supprime anciens calculs
     ["asc","mc","m2","m3","m5","m6"].forEach(id=>{
         const el = document.getElementById(id);
         if(el) el.remove();
     });
 
-    const zone = document.querySelector(".resultats");
+    // Asc + MC + maisons
+    zone.insertAdjacentHTML("beforeend",`
+        <div>Ascendant :</div>
+        <div id="asc">${fmtDM(degDansSigne(ASC))} ${signeOf(ASC)}</div>
 
-    zone.insertAdjacentHTML("beforeend",
-        `<div>Ascendant :</div><div id="asc">${fmtDM(ASC)} (${signeOf(ASC)})</div>
-         <div>Milieu du Ciel :</div><div id="mc">${fmtDM(MC)} (${signeOf(MC)})</div>
-         <div>Maison II :</div><div id="m2">${fmtDM(house2)} (${signeOf(house2)})</div>
-         <div>Maison III :</div><div id="m3">${fmtDM(house3)} (${signeOf(house3)})</div>
-         <div>Maison V :</div><div id="m5">${fmtDM(house5)} (${signeOf(house5)})</div>
-         <div>Maison VI :</div><div id="m6">${fmtDM(house6)} (${signeOf(house6)})</div>`);
+        <div>Milieu du Ciel :</div>
+        <div id="mc">${fmtDM(degDansSigne(MC))} ${signeOf(MC)}</div>
+
+        <div>Maison II :</div>
+        <div id="m2">${fmtDM(degDansSigne(M2))} ${signeOf(M2)}</div>
+
+        <div>Maison III :</div>
+        <div id="m3">${fmtDM(degDansSigne(M3))} ${signeOf(M3)}</div>
+
+        <div>Maison V :</div>
+        <div id="m5">${fmtDM(degDansSigne(M5))} ${signeOf(M5)}</div>
+
+        <div>Maison VI :</div>
+        <div id="m6">${fmtDM(degDansSigne(M6))} ${signeOf(M6)}</div>
+    `);
 }
+
 
 </script>
 
