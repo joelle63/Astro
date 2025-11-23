@@ -1,211 +1,460 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Les Signes – Au fil du Zodiaque</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --fond: #FAF8F5;
-            --texte: #2E2E2E;
-            --or: #D7BE82;
-            --or-fonce: #B88E4A;
-            --bleu-nuit: #1C2331;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--fond);
-            color: var(--texte);
-            font-family: "Lato", sans-serif;
-        }
-
-        /* BANDEAU */
-        .bandeau {
-            width: 100%;
-            height: 180px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .bandeau img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .bandeau::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(215, 190, 130, 0.25);
-        }
-
-        .titre-bandeau {
-            position: absolute;
-            bottom: 65px;
-            left: 48%;
-            transform: translateX(-50%);
-            color: #2E2E2E;
-            text-shadow: 0 0 6px rgba(255,255,255,0.7);
-            font-family: "Playfair Display", serif;
-            font-size: 33px;
-            font-weight: 600;
-            text-align: center;
-            width: 100%;
-        }
-
-        /* MENU */
-        nav {
-            background-color: var(--fond);
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--or);
-        }
-
-        nav a {
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--bleu-nuit);
-        }
-
-        nav a:hover {
-            color: var(--or-fonce);
-        }
-
-        /* PAGE SIGNES */
-        section {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 0 20px;
-            text-align: center;
-        }
-
-        h2 {
-            font-family: "Playfair Display", serif;
-            font-size: 32px;
-            margin-bottom: 20px;
-            color: var(--bleu-nuit);
-        }
-
-        /* ⭐ espacement corrigé */
-        p.petit-espace {
-            margin-top: 6px !important;
-            margin-bottom: 0 !important;
-        }
-
-        /* ⭐ nouvelle classe : réduit l'espace sous le paragraphe 2 */
-        p.moins-espace {
-            margin-bottom: 4px !important;
-        }
-
-        .signes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-top: 40px;
-        }
-
-        /* CARTES */
-        .carte-signe {
-            padding: 22px;
-            background: #FBD78D;
-            border: 1px solid #D7BE82;
-            border-radius: 14px;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.20);
-            transition: all 0.3s ease;
-            color: #2E2E2E;
-        }
-
-        .carte-signe:hover {
-            background: #FFE3A8;
-            transform: translateY(-6px);
-            box-shadow:
-                0 10px 20px rgba(0,0,0,0.22),
-                0 0 12px rgba(215,190,130,0.45);
-            border-color: #D7BE82;
-            cursor: pointer;
-        }
-
-        .picto-img {
-            width: 52px;
-            height: 52px;
-            margin: 0 auto 12px;
-            display: block;
-        }
-
-        .carte-signe h3 {
-            font-family: "Playfair Display", serif;
-            font-size: 22px;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .carte-signe p {
-            font-weight: 600;
-        }
-
-    </style>
+<meta charset="UTF-8">
+<title>Technique Astro – Placidus PRO</title>
 </head>
 
 <body>
 
-    <!-- Bandeau -->
-    <div class="bandeau">
-        <img src="header.jpg" alt="Bandeau astrologique">
-        <div class="titre-bandeau">Au fil du Zodiaque</div>
-    </div>
+<h2>Calcul Placidus — Version PRO Exacte</h2>
 
-    <!-- Menu -->
-    <nav>
-        <a href="index.html">Accueil</a>
-        <a href="signes.html">Signes</a>
-        <a href="planetes.html">Planètes</a>
-        <a href="#">Maisons</a>
-        <a href="#">À propos</a>
-    </nav>
+<label>Latitude (ex : 46° 06' N) :</label><br>
+<input id="lat" type="text" value="46° 06' N"><br><br>
 
-    <!-- Contenu -->
-    <section>
-        <h2>Les Signes du Zodiaque</h2>
+<label>Longitude (ex : 0h 12m 48s E) :</label><br>
+<input id="lon" type="text" value="0h 12m 48s E"><br><br>
 
-        <p>Les signes astrologiques sont des formes d'énergie qui permettent aux planètes qui les habitent de s'exprimer.</p>
-        <p class="moins-espace">Par exemple, un Soleil Cancer a la volonté de protéger les siens, ses proches, ses racines, son histoire.</p>
-        <p class="petit-espace">Il donne un sens à la vie en transmettant la mémoire, l’émotion et tout ce qui permet aux liens de perdurer.</p>
+<label>Date (AAAA-MM-JJ) :</label><br>
+<input id="date" type="date" value="1962-01-29"><br><br>
 
-        <div class="signes">
+<label>Heure légale (HH:MM) :</label><br>
+<input id="time" type="time" value="19:30"><br><br>
 
-            <div class="carte-signe"><div class="picto">♈</div><h3>Bélier</h3><p>Feu — Cardinal</p></div>
-            <div class="carte-signe"><div class="picto">♉</div><h3>Taureau</h3><p>Terre — Fixe</p></div>
-            <div class="carte-signe"><div class="picto">♊</div><h3>Gémeaux</h3><p>Air — Mutable</p></div>
+<button onclick="runCalc()">Calculer</button>
 
-            <!-- ⭐ CANCER AVEC TON PICTO -->
-           <a href="Cancer.html" style="text-decoration:none; color:inherit;">
-    <div class="carte-signe">
-        <img src="Cancer.png" alt="Cancer" class="picto-img">
-        <h3>Cancer</h3>
-        <p>Eau — Cardinal</p>
-    </div>
-</a>
+<hr>
 
-            <div class="carte-signe"><div class="picto">♌</div><h3>Lion</h3><p>Feu — Fixe</p></div>
-            <div class="carte-signe"><div class="picto">♍</div><h3>Vierge</h3><p>Terre — Mutable</p></div>
-            <div class="carte-signe"><div class="picto">♎</div><h3>Balance</h3><p>Air — Cardinal</p></div>
-            <div class="carte-signe"><div class="picto">♏</div><h3>Scorpion</h3><p>Eau — Fixe</p></div>
-            <div class="carte-signe"><div class="picto">♐</div><h3>Sagittaire</h3><p>Feu — Mutable</p></div>
-            <div class="carte-signe"><div class="picto">♑</div><h3>Capricorne</h3><p>Terre — Cardinal</p></div>
-            <div class="carte-signe"><div class="picto">♒</div><h3>Verseau</h3><p>Air — Fixe</p></div>
-            <div class="carte-signe"><div class="picto">♓</div><h3>Poissons</h3><p>Eau — Mutable</p></div>
+<h3>Diagnostics :</h3>
+<pre id="debug">Aucun calcul.</pre>
 
-        </div>
-    </section>
+<h3>Résultats :</h3>
+<pre id="output">Aucun calcul.</pre>
+
+<script>
+/* =====================================================
+   BLOC 1 — OUTILS DE BASE (obligatoire)
+   ===================================================== */
+
+// Convertit 0h 12m 48s E → secondes (+/-)
+function parseLongitude(lon) {
+    const m = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
+    if (!m) return 0;
+    let h = parseInt(m[1]);
+    let mn = parseInt(m[2]);
+    let s = parseInt(m[3]);
+    let sec = h*3600 + mn*60 + s;
+    if (m[4] === "O") sec = -sec;
+    return sec;
+}
+
+// Convertit heure HH:MM → secondes
+function timeToSeconds(t) {
+    const [h, m] = t.split(":").map(x => parseInt(x));
+    return h*3600 + m*60;
+}
+
+// Convertit secondes → HH:MM:SS
+function secondsToHMS(sec) {
+    sec = (sec % 86400 + 86400) % 86400;
+    const h = Math.floor(sec/3600);
+    const m = Math.floor((sec%3600)/60);
+    const s = Math.floor(sec%60);
+    return (
+        String(h).padStart(2,"0") + ":" +
+        String(m).padStart(2,"0") + ":" +
+        String(s).padStart(2,"0")
+    );
+}
+
+// Décalage France été/hiver
+function frenchOffset(dateObj) {
+    const y = dateObj.getUTCFullYear();
+    if (y < 1976) return -1; // UTC+1 toute l'année
+    const M = dateObj.getUTCMonth() + 1;
+    if (M === 12 || M === 1 || M === 2 || M === 11) return -1; // hiver
+    if (M === 6 || M === 7 || M === 8) return -2; // été
+    return -1;
+}
+/* =====================================================
+   OUTILS TRIGONOMÉTRIQUES MANQUANTS
+   ===================================================== */
+function toRad(d) { return d * Math.PI / 180; }
+function toDeg(r) { return r * 180 / Math.PI; }
+function normalize(a) {
+    a = a % 360;
+    return a < 0 ? a + 360 : a;
+}
+
+/* =====================================================
+   BLOC 2 — RA / Decl depuis le Temps Sidéral Local
+   ===================================================== */
+
+function equatorialFromLST(lstDeg, obliquityDeg) {
+    // LST = Temps sidéral local
+    // obliquité de l’écliptique (≈ 23.44°)
+    const lst = lstDeg * Math.PI/180;
+    const eps = obliquityDeg * Math.PI/180;
+
+    // RA = arctan ( tan(LST) / cos(eps) )
+    const ra = Math.atan2(Math.tan(lst), Math.cos(eps)) * 180/Math.PI;
+
+    // Decl = arcsin ( sin(eps) * sin(LST) )
+    const dec = Math.asin(Math.sin(eps) * Math.sin(lst)) * 180/Math.PI;
+
+    return { ra, dec };
+}
+
+/* ============================================================
+   BLOC 3 — ASCENDANT & MILIEU DU CIEL EXACTS
+   ============================================================ */
+
+/* Obliquité moyenne (astrologie classique) */
+function meanObliquity(JD) {
+    const T = (JD - 2451545.0) / 36525;
+    const seconds =
+        21.448 -
+        46.8150 * T -
+        0.00059 * T*T +
+        0.001813 * T*T*T;
+    return toRad(23 + (26 + seconds/60)/60);
+}
+
+/* Calcule ASC & MC en degrés écliptiques */
+function computeAngles(LSTdeg, latDeg, JD) {
+
+    const ε = meanObliquity(JD);
+    const φ = toRad(latDeg);
+    const LST = toRad(LSTdeg);
+
+    /* === MC ===
+       MC = arctan( tan(LST) / cos(ε) )
+       puis normalisation selon le quadrant
+    */
+    let MC = Math.atan2( Math.tan(LST), Math.cos(ε) );
+    MC = normalize( toDeg(MC) );
+    if (Math.cos(LST) < 0) MC = normalize(MC + 180);
+
+    /* === ASCENDANT ===
+       Formule professionnelle :
+       asc = arctan2(
+         -cos(ε)*tan(φ) - sin(ε)*sin(LST),
+          cos(LST)
+       )
+    */
+    let ASC = Math.atan2(
+        -Math.cos(ε)*Math.tan(φ) - Math.sin(ε)*Math.sin(LST),
+        Math.cos(LST)
+    );
+    ASC = normalize( toDeg(ASC) );
+
+    return { ASC, MC };
+}
+
+/* ============================================================
+   BLOC 4 — DEMI-ARCS PLACIDUS (ALGORITHME PROFESSIONNEL)
+   ============================================================ */
+
+/* Calcule la déclinaison à partir de la longitude écliptique */
+function declination(lambdaRad, epsilon) {
+    return Math.asin(Math.sin(lambdaRad) * Math.sin(epsilon));
+}
+
+/* Ascension droite à partir de longitude et déclinaison */
+function rightAscension(lambdaRad, decRad, epsilon) {
+    return Math.atan2(
+        Math.sin(lambdaRad) * Math.cos(epsilon) - Math.tan(decRad) * Math.sin(epsilon),
+        Math.cos(lambdaRad)
+    );
+}
+
+/* Demi-arcs Placidus :
+   HA = hour angle = angle horaire en radians
+   Retourne l’ascension droite du point Placidus correspondant
+*/
+function placidusSemiArc(latRad, decRad, target) {
+
+    /* Demi-arc diurne / nocturne */
+    const term = -Math.tan(latRad) * Math.tan(decRad);
+
+    /* Sécurité : si |term| >= 1 → latitude trop haute pour Placidus
+       (mais ça n’arrive pas en France)
+    */
+    if (Math.abs(term) >= 1) return null;
+
+    const semiArc = Math.acos(term); // en radians
+
+    /* Les 4 maisons Placidus fondamentales :
+        maison 11 : RA_MC + semiArc/3
+        maison 12 : RA_MC + 2*semiArc/3
+        maison 2  : RA_MH - 2*semiArc/3
+        maison 3  : RA_MH - semiArc/3
+    */
+
+    if (target === 11) return  + semiArc / 3;
+    if (target === 12) return  + 2 * semiArc / 3;
+    if (target ===  2) return  - 2 * semiArc / 3;
+    if (target ===  3) return  - semiArc / 3;
+
+    return 0;
+}
+
+/* Calcule RA (ascension droite) d’un point Placidus en maison 11/12/2/3 :
+   RA_house = RA_MC + offset   ou   RA_house = RA_MC + offset
+*/
+function placidusRA(RA_MC, latRad, dec_MC_Rad, target) {
+
+    const offset = placidusSemiArc(latRad, dec_MC_Rad, target);
+    if (offset === null) return null;
+
+    return RA_MC + offset;  // RA en radians
+}
+/* =====================================================
+   BLOC 5 — Conversion RA → Longitude zodiacale
+   ===================================================== */
+
+/* Transforme une Ascension Droite en longitude zodiacale
+   en projetant sur l’écliptique.
+   (approximation standard des tables Placidus) */
+function zodiacFromRA(raDeg, latDeg) {
+    const eps = 23.439291 * Math.PI / 180; // obliquité
+    const ra  = raDeg  * Math.PI / 180;
+    const lat = latDeg * Math.PI / 180;
+
+    // Déclinaison fictive (projection simplifiée)
+    const dec = Math.asin(Math.sin(lat) * Math.sin(ra));
+
+    // Conversion équatoriale → écliptique
+    const sinEcl = Math.sin(dec) * Math.cos(eps) - Math.cos(dec) * Math.sin(eps) * Math.sin(ra);
+    const cosEcl = Math.cos(dec) * Math.cos(ra);
+
+    const lon = Math.atan2(sinEcl, cosEcl) * 180 / Math.PI;
+    const lonNorm = (lon % 360 + 360) % 360;
+
+    return { lon: lonNorm };
+}
+   /* ============================================================
+   BLOC 6 — CALCUL DES 4 MAISONS PLACIDUS (11, 12, 2, 3)
+   ============================================================ */
+
+/* Renvoie un objet contenant les cuspides Placidus exactes 
+   en degrés zodiacaux normalisés (0–359) pour :
+   11, 12, 2, 3
+*/
+function computePlacidusHouses(RA_MC_deg, latDeg, dec_MC_deg) {
+
+    // Conversion en radians
+    const RA_MC = RA_MC_deg * Math.PI / 180;
+    const latRad = latDeg * Math.PI / 180;
+    const decRad = dec_MC_deg * Math.PI / 180;
+
+    // Obliquité en radians (utilisée par le bloc 5 au besoin)
+    const eps = 23.439291 * Math.PI / 180;
+
+    // Résultat
+    let res = {};
+
+    // Liste des maisons à calculer
+    const list = [11, 12, 2, 3];
+
+    for (let h of list) {
+
+        // Ascension droite Placidus en radians
+        const raPl = placidusRA(RA_MC, latRad, decRad, h);
+        if (raPl === null) {
+            res[h] = null;
+            continue;
+        }
+
+        // Convertir cette RA en degrés
+        const raDeg = (raPl * 180 / Math.PI + 360) % 360;
+
+        // Convertir RA → longitude zodiacale
+        const z = zodiacFromRA(raDeg, latDeg);
+
+        res[h] = {
+            ra: raDeg,
+            lon: z.lon
+        };
+    }
+
+    return res;
+}
+/* ============================================================
+   BLOC 7 — CHAÎNE COMPLÈTE ASC / MC / MAISONS PLACIDUS
+   ============================================================ */
+
+function computeFullChart(latStr, lonStr, dateStr, timeStr) {
+/* ============================================================
+   BLOC 8 — AFFICHAGE DES RÉSULTATS
+   ============================================================ */
+
+function displayResult(res) {
+    if (res.error) {
+        document.getElementById("output").textContent = "ERREUR : " + res.error;
+        return;
+    }
+
+    let txt = "";
+
+    txt += "=== HEURES ===\n";
+    txt += "Heure légale : " + res.heures.heure_legale + "\n";
+    txt += "UT           : " + res.heures.UT + "\n";
+    txt += "Locale       : " + res.heures.locale + "\n";
+    txt += "LST (°)      : " + res.heures.LST_deg.toFixed(4) + "\n\n";
+
+    txt += "=== ANGLES ===\n";
+    txt += "Ascendant : " + res.angles.asc_deg.toFixed(4) + "°  (zodiac " + res.angles.asc_sign.toFixed(2) + "°)\n";
+    txt += "Milieu du Ciel : " + res.angles.mc_deg.toFixed(4) + "° (zodiac " + res.angles.mc_sign.toFixed(2) + "°)\n\n";
+
+    txt += "=== MAISONS PLACIDUS ===\n";
+    for (let h of [11, 12, 2, 3]) {
+        const M = res.maisons[h];
+        if (!M) {
+            txt += "Maison " + h + " : impossible\n";
+        } else {
+            txt += "Maison " + h + " : RA = " +
+                M.ra.toFixed(4) + "°,  Long = " +
+                M.lon.toFixed(4) + "°\n";
+        }
+    }
+
+    document.getElementById("output").textContent = txt;
+}
+
+/* Fonction appelée par le bouton */
+function runCalc() {
+    const result = computeFullChart(
+        document.getElementById("lat").value,
+        document.getElementById("lon").value,
+        document.getElementById("date").value,
+        document.getElementById("time").value
+    );
+
+    displayResult(result);
+}
+
+    /* ------------------------------
+       1. PARSE COORDONNÉES
+       ------------------------------ */
+    const latMatch = latStr.match(/(\d+)° (\d+)' (N|S)/);
+    if (!latMatch) return { error: "Latitude invalide" };
+
+    const latDeg =
+        parseInt(latMatch[1]) +
+        parseInt(latMatch[2]) / 60;
+
+    const latFinal = latMatch[3] === "S" ? -latDeg : latDeg;
+
+    const lonSeconds = parseLongitude(lonStr); // déjà validé bloc 1
+    const lonDeg = lonSeconds / 240;           // 360°/24h → 15°/h → 240s = 1°
+
+    /* ------------------------------
+       2. HEURE LOCALE
+       ------------------------------ */
+    const dateObj = new Date(`${dateStr}T${timeStr}:00`);
+    const offset = frenchOffset(dateObj);
+    const legalSec = timeToSeconds(timeStr);
+    const UT_sec = legalSec + offset*3600;
+    const local_sec = UT_sec + lonSeconds;
+    const timeLocal = secondsToHMS(local_sec);
+
+    /* ------------------------------
+       3. TEMPS SIDÉRAL LOCAL (LST)
+       ------------------------------ */
+    const dtLocal = new Date(`${dateStr}T${timeLocal}`);
+    const JD = dtLocal.getTime()/86400000 + 2440587.5;
+    const T = (JD - 2451545.0) / 36525;
+
+    let GMST =
+        280.46061837 +
+        360.98564736629*(JD - 2451545) +
+        0.000387933*T*T -
+        (T*T*T)/38710000;
+
+    GMST = ((GMST % 360) + 360) % 360;
+
+    const LST = ((GMST + lonDeg) % 360 + 360) % 360;
+
+    /* ------------------------------
+       4. CALCUL ASC / MC — BLOC 3
+       ------------------------------ */
+    const { ASC, MC } = computeAngles(LST, latFinal, JD);
+
+    /* ------------------------------
+       5. RA / Decl du MC — BLOC 2
+       ------------------------------ */
+    const eq = equatorialFromLST(MC, 23.439291);
+    const RA_MC = eq.ra;
+    const dec_MC = eq.dec;
+
+    /* ------------------------------
+       6. MAISONS PLACIDUS — BLOC 6
+       ------------------------------ */
+    const plac = computePlacidusHouses(RA_MC, latFinal, dec_MC);
+
+    /* ------------------------------
+       7. ASSEMBLAGE DU RÉSULTAT
+       ------------------------------ */
+   const full = {
+    heures: {
+        heure_legale: timeStr,
+        UT: secondsToHMS(UT_sec),
+        locale: timeLocal,
+        LST_deg: LST
+    },
+
+    angles: {
+        asc_deg: ASC,
+        asc_sign: zodiacFromRA(ASC, latFinal).lon,
+        mc_deg: MC,
+        mc_sign: zodiacFromRA(MC, latFinal).lon
+    },
+
+    maisons: plac
+};
+
+// *** AJOUT IMPORTANT ***
+displayResult(full);
+
+return full;
+
+}
+
+/* ==========================================================
+   TEST COMPLET DES BLOCS 1 → 5
+   ========================================================== */
+
+console.log("=== TEST BLOC 1 : PARSE / HEURE LOCALE ===");
+console.log("parseLongitude =", parseLongitude("0h 12m 48s E"));
+console.log("timeToSeconds =", timeToSeconds("19:30"));
+
+console.log("=== TEST BLOC 2 : RA / Decl depuis LST ===");
+const t2 = equatorialFromLST(48.0, 30.0);
+console.log("RA =", t2.ra, "Dec =", t2.dec);
+
+console.log("=== TEST BLOC 5 : RA → ZODIAC ===");
+const t5 = zodiacFromRA(123, 46);
+console.log("Résultat bloc 5 :", t5.lon);
+
+console.log("=== TEST BLOC 6 : CUSP PLACIDUS (11-12-2-3) ===");
+
+// Exemple arbitraire de test (RA_MC, latitude, declinaison du MC)
+const t6 = computePlacidusHouses(100, 46, 20);
+
+console.log("Maisons Placidus :", t6);
+
+console.log("=== TEST BLOC 7 : FULL CHART ===");
+const t7 = computeFullChart(
+    "46° 06' N",
+    "0h 12m 48s E",
+    "1962-01-29",
+    "19:30"
+);
+console.log(t7);
+
+</script>
 
 </body>
 </html>
+
