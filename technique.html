@@ -224,6 +224,54 @@ function zodiacFromRA(raDeg, latDeg) {
 
     return { lon: lonNorm };
 }
+   /* ============================================================
+   BLOC 6 — CALCUL DES 4 MAISONS PLACIDUS (11, 12, 2, 3)
+   ============================================================ */
+
+/* Renvoie un objet contenant les cuspides Placidus exactes 
+   en degrés zodiacaux normalisés (0–359) pour :
+   11, 12, 2, 3
+*/
+function computePlacidusHouses(RA_MC_deg, latDeg, dec_MC_deg) {
+
+    // Conversion en radians
+    const RA_MC = RA_MC_deg * Math.PI / 180;
+    const latRad = latDeg * Math.PI / 180;
+    const decRad = dec_MC_deg * Math.PI / 180;
+
+    // Obliquité en radians (utilisée par le bloc 5 au besoin)
+    const eps = 23.439291 * Math.PI / 180;
+
+    // Résultat
+    let res = {};
+
+    // Liste des maisons à calculer
+    const list = [11, 12, 2, 3];
+
+    for (let h of list) {
+
+        // Ascension droite Placidus en radians
+        const raPl = placidusRA(RA_MC, latRad, decRad, h);
+        if (raPl === null) {
+            res[h] = null;
+            continue;
+        }
+
+        // Convertir cette RA en degrés
+        const raDeg = (raPl * 180 / Math.PI + 360) % 360;
+
+        // Convertir RA → longitude zodiacale
+        const z = zodiacFromRA(raDeg, latDeg);
+
+        res[h] = {
+            ra: raDeg,
+            lon: z.lon
+        };
+    }
+
+    return res;
+}
+
 /* ==========================================================
    TEST COMPLET DES BLOCS 1 → 5
    ========================================================== */
@@ -239,6 +287,13 @@ console.log("RA =", t2.ra, "Dec =", t2.dec);
 console.log("=== TEST BLOC 5 : RA → ZODIAC ===");
 const t5 = zodiacFromRA(123, 46);
 console.log("Résultat bloc 5 :", t5.lon);
+
+console.log("=== TEST BLOC 6 : CUSP PLACIDUS (11-12-2-3) ===");
+
+// Exemple arbitraire de test (RA_MC, latitude, declinaison du MC)
+const t6 = computePlacidusHouses(100, 46, 20);
+
+console.log("Maisons Placidus :", t6);
 
 </script>
 
