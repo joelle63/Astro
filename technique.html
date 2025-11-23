@@ -271,6 +271,92 @@ function computePlacidusHouses(RA_MC_deg, latDeg, dec_MC_deg) {
 
     return res;
 }
+/* ============================================================
+   BLOC 7 — CHAÎNE COMPLÈTE ASC / MC / MAISONS PLACIDUS
+   ============================================================ */
+
+function computeFullChart(latStr, lonStr, dateStr, timeStr) {
+
+    /* ------------------------------
+       1. PARSE COORDONNÉES
+       ------------------------------ */
+    const latMatch = latStr.match(/(\d+)° (\d+)' (N|S)/);
+    if (!latMatch) return { error: "Latitude invalide" };
+
+    const latDeg =
+        parseInt(latMatch[1]) +
+        parseInt(latMatch[2]) / 60;
+
+    const latFinal = latMatch[3] === "S" ? -latDeg : latDeg;
+
+    const lonSeconds = parseLongitude(lonStr); // déjà validé bloc 1
+    const lonDeg = lonSeconds / 240;           // 360°/24h → 15°/h → 240s = 1°
+
+    /* ------------------------------
+       2. HEURE LOCALE
+       ------------------------------ */
+    const dateObj = new Date(`${dateStr}T${timeStr}:00`);
+    const offset = frenchOffset(dateObj);
+    const legalSec = timeToSeconds(timeStr);
+    const UT_sec = legalSec + offset*3600;
+    const local_sec = UT_sec + lonSeconds;
+    const timeLocal = secondsToHMS(local_sec);
+
+    /* ------------------------------
+       3. TEMPS SIDÉRAL LOCAL (LST)
+       ------------------------------ */
+    const dtLocal = new Date(`${dateStr}T${timeLocal}`);
+    const JD = dtLocal.getTime()/86400000 + 2440587.5;
+    const T = (JD - 2451545.0) / 36525;
+
+    let GMST =
+        280.46061837 +
+        360.98564736629*(JD - 2451545) +
+        0.000387933*T*T -
+        (T*T*T)/38710000;
+
+    GMST = ((GMST % 360) + 360) % 360;
+
+    const LST = ((GMST + lonDeg) % 360 + 360) % 360;
+
+    /* ------------------------------
+       4. CALCUL ASC / MC — BLOC 3
+       ------------------------------ */
+    const { ASC, MC } = computeAngles(LST, latFinal, JD);
+
+    /* ------------------------------
+       5. RA / Decl du MC — BLOC 2
+       ------------------------------ */
+    const eq = equatorialFromLST(MC, 23.439291);
+    const RA_MC = eq.ra;
+    const dec_MC = eq.dec;
+
+    /* ------------------------------
+       6. MAISONS PLACIDUS — BLOC 6
+       ------------------------------ */
+    const plac = computePlacidusHouses(RA_MC, latFinal, dec_MC);
+
+    /* ------------------------------
+       7. ASSEMBLAGE DU RÉSULTAT
+       ------------------------------ */
+    return {
+        heures: {
+            heure_legale: timeStr,
+            UT: secondsToHMS(UT_sec),
+            locale: timeLocal,
+            LST_deg: LST
+        },
+
+        angles: {
+            asc_deg: ASC,
+            asc_sign: zodiacFromRA(ASC, latFinal).lon,
+            mc_deg: MC,
+            mc_sign: zodiacFromRA(MC, latFinal).lon
+        },
+
+        maisons: plac
+    };
+}
 
 /* ==========================================================
    TEST COMPLET DES BLOCS 1 → 5
@@ -294,6 +380,15 @@ console.log("=== TEST BLOC 6 : CUSP PLACIDUS (11-12-2-3) ===");
 const t6 = computePlacidusHouses(100, 46, 20);
 
 console.log("Maisons Placidus :", t6);
+
+console.log("=== TEST BLOC 7 : FULL CHART ===");
+const t7 = computeFullChart(
+    "46° 06' N",
+    "0h 12m 48s E",
+    "1962-01-29",
+    "19:30"
+);
+console.log(t7);
 
 </script>
 
