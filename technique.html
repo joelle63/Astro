@@ -228,6 +228,89 @@ let t = prepareTimeData("1962-01-29", "19:30", "0h 12m 48s E");
 console.log(
   computeAngles(t.LST, parseLat("46° 06' N"), t.JD)
 );
+/* ============================================================
+   BLOC 4 — DEMI-ARCS PLACIDUS (ALGORITHME PROFESSIONNEL)
+   ============================================================ */
+
+/* Calcule la déclinaison à partir de la longitude écliptique */
+function declination(lambdaRad, epsilon) {
+    return Math.asin(Math.sin(lambdaRad) * Math.sin(epsilon));
+}
+
+/* Ascension droite à partir de longitude et déclinaison */
+function rightAscension(lambdaRad, decRad, epsilon) {
+    return Math.atan2(
+        Math.sin(lambdaRad) * Math.cos(epsilon) - Math.tan(decRad) * Math.sin(epsilon),
+        Math.cos(lambdaRad)
+    );
+}
+
+/* Demi-arcs Placidus :
+   HA = hour angle = angle horaire en radians
+   Retourne l’ascension droite du point Placidus correspondant
+*/
+function placidusSemiArc(latRad, decRad, target) {
+
+    /* Demi-arc diurne / nocturne */
+    const term = -Math.tan(latRad) * Math.tan(decRad);
+
+    /* Sécurité : si |term| >= 1 → latitude trop haute pour Placidus
+       (mais ça n’arrive pas en France)
+    */
+    if (Math.abs(term) >= 1) return null;
+
+    const semiArc = Math.acos(term); // en radians
+
+    /* Les 4 maisons Placidus fondamentales :
+        maison 11 : RA_MC + semiArc/3
+        maison 12 : RA_MC + 2*semiArc/3
+        maison 2  : RA_MH - 2*semiArc/3
+        maison 3  : RA_MH - semiArc/3
+    */
+
+    if (target === 11) return  + semiArc / 3;
+    if (target === 12) return  + 2 * semiArc / 3;
+    if (target ===  2) return  - 2 * semiArc / 3;
+    if (target ===  3) return  - semiArc / 3;
+
+    return 0;
+}
+
+/* Calcule RA (ascension droite) d’un point Placidus en maison 11/12/2/3 :
+   RA_house = RA_MC + offset   ou   RA_house = RA_MC + offset
+*/
+function placidusRA(RA_MC, latRad, dec_MC_Rad, target) {
+
+    const offset = placidusSemiArc(latRad, dec_MC_Rad, target);
+    if (offset === null) return null;
+
+    return RA_MC + offset;  // RA en radians
+}
+// ==== TEST DU BLOC 4 ====
+
+// Exemple : 29 janv 1962, 19h30, latitude 46°06'N
+let t = prepareTimeData("1962-01-29", "19:30", "0h 12m 48s E");
+
+// Obliquité
+let eps = meanObliquity(t.JD);
+
+// MC (déjà calculé via bloc 3)
+let ang = computeAngles(t.LST, parseLat("46° 06' N"), t.JD);
+
+// RA du MC (en radians)
+let RA_MC = toRad(ang.MC);
+
+// Déclinaison du MC
+let decMC = declination(toRad(ang.MC), eps);
+
+// Demi-arc pour maison 11
+console.log("Offset maison 11 =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC, 11));
+console.log("Offset maison 12 =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC, 12));
+console.log("Offset maison 2  =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC,  2));
+console.log("Offset maison 3  =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC,  3));
+
+// RA de la maison 11
+console.log("RA maison 11 =", placidusRA(RA_MC, toRad(parseLat("46° 06' N")), decMC, 11));
 
 </script>
 
