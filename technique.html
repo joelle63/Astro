@@ -1,79 +1,63 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Technique Astro</title>
+<meta charset="UTF-8">
+<title>Technique Astro</title>
 </head>
 
 <body>
 
 <h2>Calcul Placidus — Technique</h2>
 
-<p>Entrez vos données :</p>
-
-<label>Latitude (ex : 46° 06' N) :</label><br>
+<label>Latitude :</label><br>
 <input id="lat" type="text" value="46° 06' N"><br><br>
 
-<label>Longitude (ex : 0h 12m 48s E) :</label><br>
+<label>Longitude :</label><br>
 <input id="lon" type="text" value="0h 12m 48s E"><br><br>
 
-<label>Date (AAAA-MM-JJ) :</label><br>
+<label>Date :</label><br>
 <input id="date" type="date" value="1962-01-29"><br><br>
 
-<label>Heure légale (HH:MM) :</label><br>
+<label>Heure légale :</label><br>
 <input id="time" type="time" value="19:30"><br><br>
 
 <button onclick="runCalc()">Calculer</button>
 
 <hr>
 
-<h3>Résultat :</h3>
-<pre id="output">Aucun calcul lancé.</pre>
+<h3>Diagnostics :</h3>
+<pre id="debug">Aucun calcul.</pre>
 
+<h3>Résultats :</h3>
+<pre id="output">Aucun calcul.</pre>
 
 <script>
-/* =====================================================
-         1. CONVERSION HEURE LEGALE → UT → HEURE LOCALE
-   ===================================================== */
+/* ---------------------------------------------------------
+   1. UTILITAIRES : Parsing longitude & heures
+--------------------------------------------------------- */
 
-// Convertit "0h 12m 48s E" en secondes +/-
 function parseLongitude(lon) {
     const m = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
     if (!m) return 0;
-
-    let h = parseInt(m[1]);
-    let mn = parseInt(m[2]);
-    let s = parseInt(m[3]);
-    const dir = m[4];
-
-    let totalSeconds = h*3600 + mn*60 + s;
-    if (dir === "O") totalSeconds = -totalSeconds;
-
-    return totalSeconds;
+    let h = +m[1], mn = +m[2], s = +m[3];
+    let sec = h*3600 + mn*60 + s;
+    if (m[4] === "O") sec = -sec;
+    return sec; // secondes de temps
 }
 
-// Décide automatiquement heure d’été/hiver (France)
 function frenchOffset(dateObj) {
     const year = dateObj.getUTCFullYear();
-
-    // Avant 1976 → UTC+1 toute l'année
-    if (year < 1976) return -1;
-
-    const month = dateObj.getUTCMonth() + 1;
-
-    // Hiver
-    if (month === 1 || month === 2 || month === 11 || month === 12) return -1;
-
-    // Été
-    if (month === 6 || month === 7 || month === 8) return -2;
-
-    // Mi-saison
+    if (year < 1976) return -1; // France UTC+1 avant 1976
+    // pas utile pour ton exemple, mais je laisse propre
+    const m = dateObj.getUTCMonth()+1;
+    if ([11,12,1,2].includes(m)) return -1;
+    if ([6,7,8].includes(m)) return -2;
     return -1;
 }
 
 function timeToSeconds(t) {
-    const [h,m] = t.split(":").map(x => parseInt(x));
-    return h*3600 + m*60;
+    const [H,M] = t.split(":").map(x=>parseInt(x));
+    return H*3600 + M*60;
 }
 
 function secondsToHMS(sec) {
@@ -81,135 +65,157 @@ function secondsToHMS(sec) {
     const h = Math.floor(sec/3600);
     const m = Math.floor((sec%3600)/60);
     const s = Math.floor(sec%60);
-    return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
 }
 
+/* ---------------------------------------------------------
+   2. FORMULE SIDÉRALE ASTROLOGIQUE (celle que TU veux)
+      DONNE GMST0 = 8h31m03s pour 1962-01-29 0h UT
+--------------------------------------------------------- */
 
-/* =====================================================
-                 2. CODE PLACIDUS (réparé)
-   ===================================================== */
+function gmstAstrologique(JD_ut, ut_seconds) {
 
-function computeChart({ lat, lon, date, timeLocal }) {
+    // JD0 = JD à 0h UT
+    const JD0 = Math.floor(JD_ut - 0.5) + 0.5;
 
-    function toRad(d) { return d * Math.PI/180; }
-    function toDeg(r) { return r * 180/Math.PI; }
-    function normalize(a) { a = a % 360; return a < 0 ? a + 360 : a; }
+    const T = (JD0 - 2451545.0) / 36525;
 
-    function dms(a) {
-        const d = Math.floor(a);
-        const m = Math.round((a-d)*60);
-        return `${d}°${m<10?"0":""}${m}'`;
-    }
+    // GMST à 0h UT en SECONDES (formule standard astrologique)
+    let GMST0 =
+        24110.54841 +
+        8640184.812866 * T +
+        0.093104 * T*T -
+        0.0000062 * T*T*T;
 
-    const signs = [
-        "♈ Bélier","♉ Taureau","♊ Gémeaux","♋ Cancer","♌ Lion","♍ Vierge",
-        "♎ Balance","♏ Scorpion","♐ Sagittaire","♑ Capricorne","♒ Verseau","♓ Poissons"
-    ];
-    function signOf(a) { return signs[Math.floor(a/30)]; }
+    // GMST = GMST0 + rotation terrestre × UT
+    let GMST = GMST0 + 1.00273790935 * ut_seconds;
 
-    const latMatch = lat.match(/(\d+)° (\d+)' (N|S)/);
-    const φ = (latMatch[3]==="N" ? 1 : -1) *
-              (parseInt(latMatch[1]) + parseInt(latMatch[2])/60);
+    // Normalisation
+    GMST = (GMST % 86400 + 86400) % 86400;
 
-    // --- TEMPS LOCAL DÉJÀ CALCULÉ ---
+    return GMST; // secondes
+}
+
+/* ---------------------------------------------------------
+   3. CALCUL COMPLET : LST, ASC, MC, MAISONS
+--------------------------------------------------------- */
+
+function computeChart({lat, lon, date, timeLocal, ut_seconds}) {
+
+    function toRad(d){return d*Math.PI/180;}
+    function toDeg(r){return r*180/Math.PI;}
+    function norm(a){a=a%360;return a<0?a+360:a;}
+
+    const signs=["♈ Bélier","♉ Taureau","♊ Gémeaux","♋ Cancer","♌ Lion","♍ Vierge",
+                 "♎ Balance","♏ Scorpion","♐ Sagittaire","♑ Capricorne","♒ Verseau","♓ Poissons"];
+
+    function signOf(a){return signs[Math.floor(a/30)];}
+
+    const latM = lat.match(/(\d+)° (\d+)' (N|S)/);
+    const φ = (latM[3]=="N"?1:-1)*(+latM[1] + (+latM[2]/60));
+    const φr = toRad(φ);
+
+    // --- DATE / JD ---
     const dt = new Date(`${date}T${timeLocal}`);
     const JD = dt.getTime()/86400000 + 2440587.5;
-    const T = (JD - 2451545.0)/36525;
 
-    let GMST = 280.46061837 +
-               360.98564736629*(JD - 2451545) +
-               0.000387933*T*T -
-               (T*T*T)/38710000;
+    // --- GMST (SECONDES) ---
+    const GMST_sec = gmstAstrologique(JD, ut_seconds);
 
-    GMST = normalize(GMST);
+    // --- Longitude (SECONDES) ---
+    const lon_sec = parseLongitude(lon);
 
-    // Longitude EN HEURES est déjà incluse dans timeLocal → NE PAS ajouter ici
-    const LST = normalize(GMST);
+    // LST = GMST + longitude
+    const LST_sec = (GMST_sec + lon_sec + 86400) % 86400;
 
-    const ε = toRad(23.439291);
+    const LST = (LST_sec/86400)*360;
 
-    // --- MC ---
-    const MC_rad = Math.atan2(Math.tan(toRad(LST)), Math.cos(ε));
-    let MC = normalize(toDeg(MC_rad));
-    if (Math.cos(toRad(LST)) < 0) MC = normalize(MC + 180);
+    const eps = toRad(23.439291);
 
-    // --- ASC ---
-    const φ_rad = toRad(φ);
+    // MC
+    let MC_rad = Math.atan2( Math.tan(toRad(LST)), Math.cos(eps) );
+    let MC = norm(toDeg(MC_rad));
+    if (Math.cos(toRad(LST)) < 0) MC = norm(MC+180);
 
+    // ASC
     const asc_rad =
         Math.atan2(
-            -Math.cos(ε)*Math.tan(φ_rad) - Math.sin(ε)*Math.sin(toRad(LST)),
+            -Math.cos(eps)*Math.tan(φr) - Math.sin(eps)*Math.sin(toRad(LST)),
             Math.cos(toRad(LST))
         );
+    const ASC = norm(toDeg(asc_rad));
 
-    const ASC = normalize(toDeg(asc_rad));
-
-
-    function placidusHouse(target) {
-        let hTarget =
-            target===2 ? LST+30 :
-            target===3 ? LST+60 :
-            target===5 ? LST+120 : LST+150;
-
-        hTarget = normalize(hTarget);
-
-        let H = toRad(hTarget), prev;
-
-        for (let i=0; i<15; i++) {
+    function placidusHouse(n){
+        let base =
+            n==2 ? LST+30 :
+            n==3 ? LST+60 :
+            n==5 ? LST+120 :
+                   LST+150;
+        base = norm(base);
+        let H = toRad(base), prev;
+        for(let i=0;i<15;i++){
             prev = H;
             H = Math.atan2(
                 Math.sin(prev),
-                Math.cos(prev)*Math.cos(ε) - Math.tan(φ_rad)*Math.sin(ε)
+                Math.cos(prev)*Math.cos(eps) - Math.tan(φr)*Math.sin(eps)
             );
-            if (Math.abs(H-prev)<1e-7) break;
+            if(Math.abs(H-prev)<1e-7) break;
         }
-        return normalize(toDeg(H));
+        return norm(toDeg(H));
     }
 
     return {
-        asc: {deg:ASC, txt:dms(ASC), sign:signOf(ASC)},
-        mc:  {deg:MC,  txt:dms(MC),  sign:signOf(MC)},
-        h2:  {deg:placidusHouse(2), txt:dms(placidusHouse(2)), sign:signOf(placidusHouse(2))},
-        h3:  {deg:placidusHouse(3), txt:dms(placidusHouse(3)), sign:signOf(placidusHouse(3))},
-        h5:  {deg:placidusHouse(5), txt:dms(placidusHouse(5)), sign:signOf(placidusHouse(5))},
-        h6:  {deg:placidusHouse(6), txt:dms(placidusHouse(6)), sign:signOf(placidusHouse(6))}
+        GMST: secondsToHMS(GMST_sec),
+        LST:  secondsToHMS(LST_sec),
+        mc:{deg:MC,txt:degToTxt(MC),sign:signOf(MC)},
+        asc:{deg:ASC,txt:degToTxt(ASC),sign:signOf(ASC)},
+        h2:housePack(placidusHouse(2)),
+        h3:housePack(placidusHouse(3)),
+        h5:housePack(placidusHouse(5)),
+        h6:housePack(placidusHouse(6))
     };
+
+    function degToTxt(a){
+        const d=Math.floor(a);
+        const m=Math.round((a-d)*60);
+        return `${d}°${String(m).padStart(2,"0")}'`;
+    }
+    function housePack(v){return {deg:v,txt:degToTxt(v),sign:signOf(v)};}
 }
 
+/* ---------------------------------------------------------
+   4. APPEL FINAL ET AFFICHAGE
+--------------------------------------------------------- */
 
-/* =====================================================
-                 3. APPEL FINAL
-   ===================================================== */
+function runCalc(){
+    const lat=document.getElementById("lat").value;
+    const lon=document.getElementById("lon").value;
+    const date=document.getElementById("date").value;
+    const timeLegal=document.getElementById("time").value;
 
-function runCalc() {
+    const dtL = new Date(`${date}T${timeLegal}:00`);
+    const offset = frenchOffset(dtL);
+    const legal = timeToSeconds(timeLegal);
+    const ut_seconds = legal + offset*3600;
+    const lon_seconds = parseLongitude(lon);
+    const local_seconds = ut_seconds + lon_seconds;
 
-    const lat  = document.getElementById("lat").value;
-    const lon  = document.getElementById("lon").value;
-    const date = document.getElementById("date").value;
-    const timeLegal = document.getElementById("time").value;
+    const timeLocal = secondsToHMS(local_seconds);
 
-    const dtLegal = new Date(`${date}T${timeLegal}:00`);
+    const debug = 
+`Heure légale : ${timeLegal}
+Heure GMT (UT) : ${secondsToHMS(ut_seconds)}
+Longitude : ${secondsToHMS(lon_seconds)}
+Heure locale : ${timeLocal}`;
 
-    const offset = frenchOffset(dtLegal);   // -1 ou -2
-    const legalSeconds = timeToSeconds(timeLegal);
+    document.getElementById("debug").textContent = debug;
 
-    const utSeconds = legalSeconds + offset*3600;
-
-    const lonSeconds = parseLongitude(lon);
-
-    const localSeconds = utSeconds + lonSeconds;
-
-    const timeLocal = secondsToHMS(localSeconds);
-
-    const result = computeChart({
-        lat,
-        lon,
-        date,
-        timeLocal
+    const r = computeChart({
+        lat,lon,date,timeLocal,ut_seconds
     });
 
     document.getElementById("output").textContent =
-        JSON.stringify(result, null, 2);
+        JSON.stringify(r,null,2);
 }
 </script>
 
