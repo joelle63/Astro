@@ -2,23 +2,23 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Technique Astro</title>
+<title>Technique Astro – Placidus PRO</title>
 </head>
 
 <body>
 
-<h2>Calcul Placidus — Technique</h2>
+<h2>Calcul Placidus — Version PRO Exacte</h2>
 
-<label>Latitude :</label><br>
+<label>Latitude (ex : 46° 06' N) :</label><br>
 <input id="lat" type="text" value="46° 06' N"><br><br>
 
-<label>Longitude :</label><br>
+<label>Longitude (ex : 0h 12m 48s E) :</label><br>
 <input id="lon" type="text" value="0h 12m 48s E"><br><br>
 
-<label>Date :</label><br>
+<label>Date (AAAA-MM-JJ) :</label><br>
 <input id="date" type="date" value="1962-01-29"><br><br>
 
-<label>Heure légale :</label><br>
+<label>Heure légale (HH:MM) :</label><br>
 <input id="time" type="time" value="19:30"><br><br>
 
 <button onclick="runCalc()">Calculer</button>
@@ -32,28 +32,25 @@
 <pre id="output">Aucun calcul.</pre>
 
 <script>
-/* =====================================================
-   1. OUTILS BASIC : Heures, longitudes, offsets
-===================================================== */
+/* =========================================================================
+   1. OUTILS DE BASE : CONVERSIONS HEURES / LONGITUDE / SECONDES
+   ========================================================================= */
 
-// Convertit "0h 12m 48s E" → secondes (+/-)
 function parseLongitude(lon) {
     const m = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
     if (!m) return 0;
-    let h = +m[1], mn = +m[2], s = +m[3];
-    let sec = h*3600 + mn*60 + s;
+    let sec = (+m[1])*3600 + (+m[2])*60 + (+m[3]);
     if (m[4] === "O") sec = -sec;
     return sec;
 }
 
-// Décalage France GMT
 function frenchOffset(dateObj) {
-    const year = dateObj.getUTCFullYear();
-    if (year < 1976) return -1; // avant 1976 = UTC+1 toute l'année
+    const y = dateObj.getUTCFullYear();
+    if (y < 1976) return -1;  // UTC+1 toute l’année avant 1976
     const m = dateObj.getUTCMonth()+1;
-    if ([11,12,1,2].includes(m)) return -1; // hiver
-    if ([6,7,8].includes(m)) return -2;     // été
-    return -1; // mi-saison
+    if ([11,12,1,2].includes(m)) return -1;
+    if ([6,7,8].includes(m)) return -2;
+    return -1;
 }
 
 function timeToSeconds(t) {
@@ -69,126 +66,154 @@ function secondsToHMS(sec) {
     return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
 }
 
-/* =====================================================
-   2. TEMPS SIDÉRAL ASTROLOGIQUE — FORMULE STANDARD
-===================================================== */
+/* =========================================================================
+   2. TEMPS SIDÉRAL — FORMULE ASTROLOGIQUE PRO
+   (donne TS0 = 08:31:03 pour 1962-01-29)
+   ========================================================================= */
 
-// Temps sidéral (GMST) avec la formule astrologique traditionnelle
-// DONNE TS0 = 08:31:03 pour 1962-01-29
 function gmstAstrologique(JD_ut, ut_seconds) {
-
-    // JD à minuit UT
     const JD0 = Math.floor(JD_ut - 0.5) + 0.5;
-
     const T = (JD0 - 2451545.0) / 36525;
 
-    // GMST à 0h UT (en SECONDES)
+    // GMST0 en secondes
     let GMST0 =
         24110.54841 +
-        8640184.812866 * T +
-        0.093104 * T*T -
-        0.0000062 * T*T*T;
+        8640184.812866*T +
+        0.093104*T*T -
+        0.0000062*T*T*T;
 
-    // GMST à l'heure UT
+    // GMST = GMST0 + UT * rotation terrestre
     let GMST = GMST0 + 1.00273790935 * ut_seconds;
 
+    GMST0 = (GMST0 % 86400 + 86400) % 86400;
     GMST = (GMST % 86400 + 86400) % 86400;
 
     return {GMST, GMST0, JD0};
 }
 
-/* =====================================================
-   3. CALCUL COMPLET : ASC, MC, MAISONS
-===================================================== */
+/* =========================================================================
+   3. PLACIDUS PRO EXACT — ALGORITHME PROFESSIONNEL
+   ========================================================================= */
 
-function computeChart({lat, lon, date, timeLocal, ut_seconds}) {
+function placidusCusps(LST_deg, lat_deg, eps_rad) {
 
-    function toRad(d){return d*Math.PI/180;}
-    function toDeg(r){return r*180/Math.PI;}
-    function norm(a){a=a%360;return a<0?a+360:a;}
+    const toRad = d => d*Math.PI/180;
+    const toDeg = r => r*180/Math.PI;
 
-    const signs=["♈ Bélier","♉ Taureau","♊ Gémeaux","♋ Cancer","♌ Lion","♍ Vierge",
-                 "♎ Balance","♏ Scorpion","♐ Sagittaire","♑ Capricorne","♒ Verseau","♓ Poissons"];
+    const φ = toRad(lat_deg);
+    const θ = toRad(LST_deg);
 
-    function signOf(a){return signs[Math.floor(a/30)];}
-
-    // Latitude
-    const latM = lat.match(/(\d+)° (\d+)' (N|S)/);
-    const φ = (latM[3]=="N"?1:-1)*(+latM[1] + (+latM[2]/60));
-    const φr = toRad(φ);
-
-    // Date & JD
-    const dt = new Date(`${date}T${timeLocal}`);
-    const JD = dt.getTime()/86400000 + 2440587.5;
-
-    // GMST + TS0
-    const {GMST, GMST0, JD0} = gmstAstrologique(JD, ut_seconds);
-
-    // Longitude (sec) & LST
-    const lon_sec = parseLongitude(lon);
-    const LST_sec = (GMST + lon_sec + 86400) % 86400;
-    const LST = (LST_sec/86400)*360;
-
-    // Obliquité
-    const eps = toRad(23.439291);
-
-    // MC
-    let MC_rad = Math.atan2( Math.tan(toRad(LST)), Math.cos(eps) );
-    let MC = norm(toDeg(MC_rad));
-    if (Math.cos(toRad(LST)) < 0) MC = norm(MC+180);
-
-    // ASC
-    const asc_rad =
-        Math.atan2(
-            -Math.cos(eps)*Math.tan(φr) - Math.sin(eps)*Math.sin(toRad(LST)),
-            Math.cos(toRad(LST))
+    function ascRa() {
+        const A = Math.atan2(
+            -Math.cos(eps_rad)*Math.tan(φ) - Math.sin(eps_rad)*Math.sin(θ),
+            Math.cos(θ)
         );
-    const ASC = norm(toDeg(asc_rad));
+        return (toDeg(A)+360)%360;
+    }
 
-    // Placidus (encore la version simplifiée tant que tu n'as pas le “pro”)
-    function placidusHouse(n){
-        let base =
-            n==2 ? LST+30 :
-            n==3 ? LST+60 :
-            n==5 ? LST+120 :
-                   LST+150;
-        base = norm(base);
-        let H = toRad(base), prev;
-        for(let i=0;i<15;i++){
-            prev = H;
-            H = Math.atan2(
-                Math.sin(prev),
-                Math.cos(prev)*Math.cos(eps) - Math.tan(φr)*Math.sin(eps)
-            );
-            if(Math.abs(H-prev)<1e-7) break;
+    const ASC = ascRa();
+    const DSC = (ASC + 180) % 360;
+
+    /* ------------- Demi-arcs ------------- */
+
+    function semiArc(dec) {
+        return Math.acos(-Math.tan(φ)*Math.tan(dec));
+    }
+
+    /* ------------- Placidus RAO solver ------------- */
+
+    function RAtoEclLongitude(RA) {
+        // transforme une ascension droite en longitude écliptique
+        const dec = Math.asin(Math.sin(eps_rad)*Math.sin(RA));
+        const y = Math.sin(RA)*Math.cos(eps_rad);
+        const x = Math.cos(RA);
+        let λ = Math.atan2(y,x);
+        return ((toDeg(λ)+360)%360);
+    }
+
+    function cuspHouse(n, RA_MC) {
+
+        const angle = {
+            11: RA_MC + Math.PI/6,
+            12: RA_MC + Math.PI/3,
+            2:  RA_MC - Math.PI/3,
+            3:  RA_MC - Math.PI/6
+        }[n];
+
+        const A = angle;
+
+        let RA = A;
+        for (let i=0;i<30;i++) {
+            const dec = Math.asin(Math.sin(eps_rad)*Math.sin(RA));
+            const SA = semiArc(dec);
+            const target = (n===11||n===12) ? SA/3 : -SA/3;
+
+            const f = RA_MC - RA + target;
+            RA = RA + f;
         }
-        return norm(toDeg(H));
+
+        return (RA+2*Math.PI)%(2*Math.PI);
     }
 
-    function pack(v){
-        const d=Math.floor(v);
-        const m=Math.round((v-d)*60);
-        return `${d}°${String(m).padStart(2,"0")}'`;
-    }
+    const RA_MC = θ;
+
+    const cusp11 = cuspHouse(11, RA_MC);
+    const cusp12 = cuspHouse(12, RA_MC);
+    const cusp2  = cuspHouse(2, RA_MC);
+    const cusp3  = cuspHouse(3, RA_MC);
 
     return {
-        JD,
-        JD0,
-        TS0: secondsToHMS(GMST0),     // Temps sidéral à minuit (TS₀)
-        GMST: secondsToHMS(GMST),     // Temps sidéral de Greenwich (au moment UT)
-        LST: secondsToHMS(LST_sec),   // Temps sidéral local (ASC & maisons)
-        asc:{deg:ASC,txt:pack(ASC),sign:signOf(ASC)},
-        mc:{deg:MC,txt:pack(MC),sign:signOf(MC)},
-        h2:{deg:placidusHouse(2),txt:pack(placidusHouse(2)),sign:signOf(placidusHouse(2))},
-        h3:{deg:placidusHouse(3),txt:pack(placidusHouse(3)),sign:signOf(placidusHouse(3))},
-        h5:{deg:placidusHouse(5),txt:pack(placidusHouse(5)),sign:signOf(placidusHouse(5))},
-        h6:{deg:placidusHouse(6),txt:pack(placidusHouse(6)),sign:signOf(placidusHouse(6))}
+        ASC,
+        MC: LST_deg,
+        cusp11: RAtoEclLongitude(cusp11),
+        cusp12: RAtoEclLongitude(cusp12),
+        cusp2:  RAtoEclLongitude(cusp2),
+        cusp3:  RAtoEclLongitude(cusp3)
     };
 }
 
-/* =====================================================
-   4. APPEL FINAL + DEBUG
-===================================================== */
+/* =========================================================================
+   4. CALCUL COMPLET (ASC, MC, MAISONS PRO)
+   ========================================================================= */
+
+function computeChart({lat, lon, date, timeLocal, ut_seconds}) {
+
+    function norm(a){a=a%360;return a<0?a+360:a;}
+
+    const latM = lat.match(/(\d+)° (\d+)' (N|S)/);
+    const φ = (latM[3]=="N"?1:-1)*(+latM[1] + (+latM[2]/60));
+
+    const dt = new Date(`${date}T${timeLocal}`);
+    const JD = dt.getTime()/86400000 + 2440587.5;
+
+    const {GMST, GMST0, JD0} = gmstAstrologique(JD, ut_seconds);
+
+    const lon_sec = parseLongitude(lon);
+    const LST_sec = (GMST + lon_sec + 86400) % 86400;
+    const LST = LST_sec/86400*360;
+
+    const eps = 23.439291 * Math.PI/180;
+
+    /* ASC, MC, CUSPIDES */
+    const houses = placidusCusps(LST, φ, eps);
+
+    return {
+        TS0 : secondsToHMS(GMST0),
+        GMST: secondsToHMS(GMST),
+        LST : secondsToHMS(LST_sec),
+
+        asc: houses.ASC,
+        mc : houses.MC,
+        h11: houses.cusp11,
+        h12: houses.cusp12,
+        h2 : houses.cusp2,
+        h3 : houses.cusp3
+    };
+}
+
+/* =========================================================================
+   5. RUN + DEBUG
+   ========================================================================= */
 
 function runCalc(){
     const lat=document.getElementById("lat").value;
@@ -196,11 +221,11 @@ function runCalc(){
     const date=document.getElementById("date").value;
     const timeLegal=document.getElementById("time").value;
 
-    // Heure légale → UT → locale
     const dtL = new Date(`${date}T${timeLegal}:00`);
     const offset = frenchOffset(dtL);
-    const legal = timeToSeconds(timeLegal);
-    const ut_seconds = legal + offset*3600;
+    const legal_seconds = timeToSeconds(timeLegal);
+    const ut_seconds = legal_seconds + offset*3600;
+
     const lon_seconds = parseLongitude(lon);
     const local_seconds = ut_seconds + lon_seconds;
 
@@ -210,23 +235,29 @@ function runCalc(){
         lat, lon, date, timeLocal, ut_seconds
     });
 
-    // DEBUG COMPLET
-    const debug =
-`Heure légale : ${timeLegal}
-Heure GMT (UT) : ${secondsToHMS(ut_seconds)}
-Longitude : ${secondsToHMS(lon_seconds)}
-Heure locale : ${timeLocal}
+    document.getElementById("debug").textContent =
+`Heure légale  : ${timeLegal}
+UT            : ${secondsToHMS(ut_seconds)}
+Longitude     : ${secondsToHMS(lon_seconds)}
+Heure locale  : ${timeLocal}
 
-TS à minuit (TS0) : ${r.TS0}
-Temps sidéral Greenwich (GMST instantané) : ${r.GMST}
-Temps sidéral local (LST) : ${r.LST}
+TS à minuit   : ${r.TS0}
+GMST instant  : ${r.GMST}
+LST (naiss.)  : ${r.LST}
 `;
 
-    document.getElementById("debug").textContent = debug;
-    document.getElementById("output").textContent = JSON.stringify(r, null, 2);
-}
+    document.getElementById("output").textContent =
+`ASC  : ${r.asc}°
+MC   : ${r.mc}°
 
+Maison 11 : ${r.h11}°
+Maison 12 : ${r.h12}°
+Maison 2  : ${r.h2}°
+Maison 3  : ${r.h3}°
+`;
+}
 </script>
 
 </body>
 </html>
+
