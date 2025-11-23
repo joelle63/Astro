@@ -100,6 +100,19 @@ function normalize(a) {
     a = a % 360;
     return a < 0 ? a + 360 : a;
 }
+// Convertit 0–359° en "DD°MM Signe"
+function formatZodiac(deg) {
+    const signs = [
+        "♈ Bélier", "♉ Taureau", "♊ Gémeaux", "♋ Cancer",
+        "♌ Lion", "♍ Vierge", "♎ Balance", "♏ Scorpion",
+        "♐ Sagittaire", "♑ Capricorne", "♒ Verseau", "♓ Poissons"
+    ];
+    const s = Math.floor(deg / 30);
+    const d = Math.floor(deg % 30);
+    const m = Math.round((deg - Math.floor(deg)) * 60);
+
+    return `${d}°${m.toString().padStart(2,"0")} ${signs[s]}`;
+}
 
 
 /* =====================================================
@@ -505,6 +518,27 @@ angles: {
 displayResult(full);
 
 return full;
+/* ------------------------------
+   TEMPS SIDÉRAL À 0h ET TS NATAL
+--------------------------------*/
+function GMST_at0h(dateStr) {
+    const d = new Date(`${dateStr}T00:00:00`);
+    const JD0 = d.getTime()/86400000 + 2440587.5;
+    const T0 = (JD0 - 2451545.0) / 36525;
+
+    let GMST0 =
+        280.46061837 +
+        360.98564736629 * (JD0 - 2451545) +
+        0.000387933 * T0*T0 -
+        (T0*T0*T0) / 38710000;
+
+    return normalize(GMST0);
+}
+
+const GMST0h = GMST_at0h(dateStr);
+
+const TS_natal_deg = LST;
+const TS_natal_hms = secondsToHMS( TS_natal_deg * 240 );
 
 }
 /* =====================================================
@@ -691,7 +725,24 @@ function displayResult(t) {
 
     out.textContent = txt;
 }
-    document.getElementById("output").textContent = txt;
+    document.getElementById("output").textContent =
+`Temps sidéral :
+  • GMST (0h)     : ${formatZodiac(GMST0h)}
+  • TS natal      : ${formatZodiac(TS_natal_deg)}
+
+Angles :
+  • Ascendant     : ${formatZodiac(r.asc)}
+  • Milieu du Ciel: ${formatZodiac(r.mc)}
+
+Maisons Placidus :
+  • Maison 11     : ${formatZodiac(r.h11)}
+  • Maison 12     : ${formatZodiac(r.h12)}
+  • Maison 2      : ${formatZodiac(r.h2)}
+  • Maison 3      : ${formatZodiac(r.h3)}
+  • Maison 5      : ${formatZodiac(r.h5)}
+  • Maison 6      : ${formatZodiac(r.h6)}
+`;
+
 }
 
 console.log("=== FORMAT ASTROLOGIQUE (ASC / MC / MAISONS) ===");
