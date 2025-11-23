@@ -76,6 +76,19 @@ function frenchOffset(dateObj) {
     if (M === 6 || M === 7 || M === 8) return -2; // été
     return -1;
 }
+/* =====================================================
+   OUTILS TRIGONOMÉTRIQUES MANQUANTS
+   ===================================================== */
+function toRad(d) { 
+    return d * Math.PI / 180; 
+}
+function toDeg(r) { 
+    return r * 180 / Math.PI; 
+}
+function normalize(a) {
+    a = a % 360;
+    return (a < 0) ? a + 360 : a;
+}
 
 /* =====================================================
    BLOC 2 — RA / Decl depuis le Temps Sidéral Local
