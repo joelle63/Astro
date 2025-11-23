@@ -498,10 +498,30 @@ function runCalc() {
 // *** AJOUT IMPORTANT ***
 displayResult(full);
 
-
 return full;
 
+}
+/* =====================================================
+   OUTIL — Convertit 0–359° en "dd°mm Signe"
+   ===================================================== */
 
+function formatZodiac(deg) {
+    const signs = [
+        "Bélier", "Taureau", "Gémeaux", "Cancer",
+        "Lion", "Vierge", "Balance", "Scorpion",
+        "Sagittaire", "Capricorne", "Verseau", "Poissons"
+    ];
+
+    deg = ((deg % 360) + 360) % 360;
+
+    const signIndex = Math.floor(deg / 30);
+    const sign = signs[signIndex];
+
+    const withinSign = deg - signIndex * 30;
+    const d = Math.floor(withinSign);
+    const m = Math.round((withinSign - d) * 60);
+
+    return `${d}°${String(m).padStart(2,"0")} ${sign}`;
 }
 
 
