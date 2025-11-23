@@ -554,7 +554,6 @@ const t6 = computePlacidusHouses(100, 46, 20);
 
 console.log("Maisons Placidus :", t6);
 
-
 console.log("=== TEST BLOC 7 : FULL CHART ===");
 const t7 = computeFullChart(
     "46° 06' N",
@@ -563,7 +562,23 @@ const t7 = computeFullChart(
     "19:30"
 );
 console.log(t7);
+console.log("=== FORMAT ASTROLOGIQUE (ASC / MC / MAISONS) ===");
 
+console.log("Ascendant :", formatZodiac(t7.angles.asc_deg));
+console.log("Milieu du Ciel :", formatZodiac(t7.angles.mc_deg));
+
+if (t7.maisons[2]) {
+    console.log("Maison 2 :", formatZodiac(t7.maisons[2].lon));
+}
+if (t7.maisons[3]) {
+    console.log("Maison 3 :", formatZodiac(t7.maisons[3].lon));
+}
+if (t7.maisons[5]) {
+    console.log("Maison 5 :", formatZodiac(t7.maisons[5].lon));
+}
+if (t7.maisons[6]) {
+    console.log("Maison 6 :", formatZodiac(t7.maisons[6].lon));
+}
 
 </script>
 
