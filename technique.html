@@ -348,23 +348,29 @@ function computeFullChart(latStr, lonStr, dateStr, timeStr) {
     /* ------------------------------
        7. ASSEMBLAGE DU RÉSULTAT
        ------------------------------ */
-    return {
-        heures: {
-            heure_legale: timeStr,
-            UT: secondsToHMS(UT_sec),
-            locale: timeLocal,
-            LST_deg: LST
-        },
+   const full = {
+    heures: {
+        heure_legale: timeStr,
+        UT: secondsToHMS(UT_sec),
+        locale: timeLocal,
+        LST_deg: LST
+    },
 
-        angles: {
-            asc_deg: ASC,
-            asc_sign: zodiacFromRA(ASC, latFinal).lon,
-            mc_deg: MC,
-            mc_sign: zodiacFromRA(MC, latFinal).lon
-        },
+    angles: {
+        asc_deg: ASC,
+        asc_sign: zodiacFromRA(ASC, latFinal).lon,
+        mc_deg: MC,
+        mc_sign: zodiacFromRA(MC, latFinal).lon
+    },
 
-        maisons: plac
-    };
+    maisons: plac
+};
+
+// *** AJOUT IMPORTANT ***
+displayResult(full);
+
+return full;
+
 }
 
 /* ==========================================================
