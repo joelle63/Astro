@@ -530,6 +530,70 @@ function formatZodiac(deg) {
     return `${d}°${String(m).padStart(2,"0")} ${sign}`;
 }
 
+/* ============================================================
+   BLOC — OUTIL FORMAT ZODIAC
+   ============================================================ */
+function formatZodiac(deg) {
+    const signes = [
+        "Bélier", "Taureau", "Gémeaux", "Cancer",
+        "Lion", "Vierge", "Balance", "Scorpion",
+        "Sagittaire", "Capricorne", "Verseau", "Poissons"
+    ];
+    deg = ((deg % 360) + 360) % 360;
+    const signeIndex = Math.floor(deg / 30);
+    const degInSign = deg % 30;
+    return `${Math.floor(degInSign)}° ${signes[signeIndex]}`;
+}
+
+/* ============================================================
+   AFFICHAGE DU RÉSULTAT
+   ============================================================ */
+function displayResult(data) {
+    if (!data) {
+        document.getElementById("output").textContent = "Pas de résultat.";
+        return;
+    }
+
+    let txt = "";
+
+    // HEURES
+    txt += "=== HEURES ===\n";
+    txt += "Heure légale : " + data.heures.heure_legale + "\n";
+    txt += "UT : " + data.heures.UT + "\n";
+    txt += "Locale : " + data.heures.locale + "\n";
+    txt += "LST : " + data.heures.LST_deg.toFixed(3) + "°\n\n";
+
+    // ANGLES
+    txt += "=== ANGLES ===\n";
+    txt += "Ascendant : " + formatZodiac(data.angles.asc_deg) + "\n";
+    txt += "Milieu du Ciel : " + formatZodiac(data.angles.mc_deg) + "\n\n";
+
+    // MAISONS
+    txt += "=== MAISONS PLACIDUS ===\n";
+    for (let h of Object.keys(data.maisons)) {
+        const m = data.maisons[h];
+        if (m === null) {
+            txt += `Maison ${h} : impossible\n`;
+        } else {
+            txt += `Maison ${h} : ${formatZodiac(m.lon)}\n`;
+        }
+    }
+
+    document.getElementById("output").textContent = txt;
+}
+
+/* ============================================================
+   FONCTION DE CALCUL FINALE
+   ============================================================ */
+function runCalc() {
+    const lat = document.getElementById("lat").value;
+    const lon = document.getElementById("lon").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+
+    const result = computeFullChart(lat, lon, date, time);
+    displayResult(result);
+}
 
 /* ==========================================================
    TEST COMPLET DES BLOCS 1 → 5
