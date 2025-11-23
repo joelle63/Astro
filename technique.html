@@ -79,15 +79,11 @@ function frenchOffset(dateObj) {
 /* =====================================================
    OUTILS TRIGONOMÉTRIQUES MANQUANTS
    ===================================================== */
-function toRad(d) { 
-    return d * Math.PI / 180; 
-}
-function toDeg(r) { 
-    return r * 180 / Math.PI; 
-}
+function toRad(d) { return d * Math.PI / 180; }
+function toDeg(r) { return r * 180 / Math.PI; }
 function normalize(a) {
     a = a % 360;
-    return (a < 0) ? a + 360 : a;
+    return a < 0 ? a + 360 : a;
 }
 
 /* =====================================================
