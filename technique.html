@@ -32,56 +32,51 @@
 <pre id="output">Aucun calcul.</pre>
 
 <script>
-/* ============================================
-   BLOC 1 — FONCTIONS DE BASE (SÉCURISÉ)
-   ============================================ */
+/* =====================================================
+   BLOC 1 — OUTILS DE BASE (obligatoire)
+   ===================================================== */
 
-/* Conversions */
-function toRad(d) { return d * Math.PI / 180; }
-function toDeg(r) { return r * 180 / Math.PI; }
-function normalize(a) { a = a % 360; return a < 0 ? a + 360 : a; }
-
-/* Format astrologique */
-function dms(a) {
-    const d = Math.floor(a);
-    const m = Math.round((a - d) * 60);
-    return `${d}°${m.toString().padStart(2,"0")}'`;
+// Convertit 0h 12m 48s E → secondes (+/-)
+function parseLongitude(lon) {
+    const m = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
+    if (!m) return 0;
+    let h = parseInt(m[1]);
+    let mn = parseInt(m[2]);
+    let s = parseInt(m[3]);
+    let sec = h*3600 + mn*60 + s;
+    if (m[4] === "O") sec = -sec;
+    return sec;
 }
 
-const SIGNS = [
-    "♈ Bélier","♉ Taureau","♊ Gémeaux","♋ Cancer",
-    "♌ Lion","♍ Vierge","♎ Balance","♏ Scorpion",
-    "♐ Sagittaire","♑ Capricorne","♒ Verseau","♓ Poissons"
-];
-function signOf(a) { return SIGNS[Math.floor(a/30)]; }
-
-/* Décode latitude type "46° 06' N" */
-function parseLat(latStr) {
-    const m = latStr.match(/(\d+)°\s+(\d+)'?\s*(N|S)/i);
-    const deg = parseInt(m[1]);
-    const min = parseInt(m[2]);
-    const sign = (m[3].toUpperCase()==="N") ? 1 : -1;
-    return sign * (deg + min/60);
+// Convertit heure HH:MM → secondes
+function timeToSeconds(t) {
+    const [h, m] = t.split(":").map(x => parseInt(x));
+    return h*3600 + m*60;
 }
 
-/* Décode longitude type "0h 12m 48s E" en SECONDES */
-function parseLongitude(lonStr) {
-    const m = lonStr.match(/(\d+)h\s+(\d+)m\s+(\d+)s\s+(E|O)/i);
-    const h = parseInt(m[1]);
-    const mn = parseInt(m[2]);
-    const s = parseInt(m[3]);
-    const sign = (m[4].toUpperCase()==="E") ? 1 : -1;
-    return sign * (h*3600 + mn*60 + s);
-}
-
-/* Convertit secondes → HH:MM:SS */
-function secToHMS(sec) {
+// Convertit secondes → HH:MM:SS
+function secondsToHMS(sec) {
     sec = (sec % 86400 + 86400) % 86400;
     const h = Math.floor(sec/3600);
     const m = Math.floor((sec%3600)/60);
     const s = Math.floor(sec%60);
-    return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+    return (
+        String(h).padStart(2,"0") + ":" +
+        String(m).padStart(2,"0") + ":" +
+        String(s).padStart(2,"0")
+    );
 }
+
+// Décalage France été/hiver
+function frenchOffset(dateObj) {
+    const y = dateObj.getUTCFullYear();
+    if (y < 1976) return -1; // UTC+1 toute l'année
+    const M = dateObj.getUTCMonth() + 1;
+    if (M === 12 || M === 1 || M === 2 || M === 11) return -1; // hiver
+    if (M === 6 || M === 7 || M === 8) return -2; // été
+    return -1;
+}
+
 /* ============================================================
    BLOC 2 — UT, HEURE LOCALE, TEMPS SIDERAL (ASTROLOGIQUE)
    ============================================================ */
