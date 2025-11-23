@@ -303,59 +303,37 @@ function raDecToLongitude(RA, dec, epsilon) {
     lambda = normalize(toDeg(lambda)); // en degrés
     return lambda;
 }
-// ===== TEST BLOC 5 =====
-let eps5 = meanObliquity(tt.JD);
-
-// MC déjà calculé bloc 3
-let mcTest = computeAngles(tt.LST, parseLat("46° 06' N"), tt.JD);
-let decMC_test = declination(toRad(mcTest.MC), eps5);
-
-let RA_MC_test = toRad(mcTest.MC);
-
-// Conversion MC RA/DEC → longitude (doit redonner MC)
-console.log("Test conversion MC RA→λ :", 
-    raDecToLongitude(RA_MC_test, decMC_test, eps5)
 );
-/* =============================
-   TEST GLOBAL BLOCS 1 → 5
-   ============================= */
+/* ==========================================================
+   TEST COMPLET DES BLOCS 1 → 5
+   À coller tel quel en bas du script
+   ========================================================== */
 
-console.log("===== TEST BLOCS 1 → 5 =====");
+console.log("=== TEST BLOC 1 : PARSE / HEURE LOCALE ===");
+const t1_lon = parseLongitude("0h 12m 48s E");
+const t1_time = timeToSeconds("19:30");
+console.log("Longitude en secondes =", t1_lon);
+console.log("Heure légale en secondes =", t1_time);
 
-/* Bloc 1 : longitude */
-console.log("Bloc1 lonSeconds =", parseLongitude("0h 12m 48s E"));
 
-/* Bloc 2 : heure légale → UT → locale */
-const testDate = "1962-01-29";
-const testTime = "19:30";
-const dtLegalTest = new Date(`${testDate}T${testTime}:00`);
-const offsetTest = frenchOffset(dtLegalTest);
-const legalSecTest = timeToSeconds(testTime);
-const utSecTest = legalSecTest + offsetTest * 3600;
-const lonSecTest = parseLongitude("0h 12m 48s E");
-const localSecTest = utSecTest + lonSecTest;
+console.log("=== TEST BLOC 2 : RA/Decl from LST ===");
+const t2 = equatorialFromLST(48.0, 30.0);  // LST arbitraire
+console.log("RA =", t2.ra, "Dec =", t2.dec);
 
-console.log("Bloc2 offset =", offsetTest);
-console.log("Bloc2 UT seconds =", utSecTest);
-console.log("Bloc2 Local seconds =", localSecTest);
-console.log("Bloc2 Local HMS =", secondsToHMS(localSecTest));
 
-/* Bloc 3 : RA MC + Sidéral */
-const timeLocalTest = secondsToHMS(localSecTest);
-console.log("Bloc3 timeLocal =", timeLocalTest);
+console.log("=== TEST BLOC 3 : EQ → EC (zodiaque) ===");
+const t3 = ecFromEquatorial(100, 10); // RA 100°, dec 10°
+console.log("Longitude zodiacale =", t3.lon, "lat =", t3.lat);
 
-const sid3 = computeSidereal(testDate, timeLocalTest, 0.053);
-// (0.053° = 0h 12m 48s)
-console.log("Bloc3 Sidereal =", sid3);
 
-/* Bloc 4 : demi-arcs */
-const da = computeDemiArcs(46.1, sid3.RA_MC);
-console.log("Bloc4 Demi-Arcs =", da);
+console.log("=== TEST BLOC 4 : DEMI-ARCS PLACIDUS ===");
+const t4 = placidusOffsets(100, 46); // RA_MC=100°, latitude=46°
+console.log("HA_d =", t4.HA_d, "HA_n =", t4.HA_n);
 
-/* Bloc 5 : conversion RA→Longitude */
-console.log("Bloc5 RAtoLon 40° =", RAtoLon(40, 46.1, da));
 
-console.log("===== FIN TEST =====");
+console.log("=== TEST BLOC 5 : RA → ZODIAC ===");
+const t5 = zodiacFromRA(123, 10); // RA fictive
+console.log("Zodiac =", t5.lon);
 
 </script>
 
