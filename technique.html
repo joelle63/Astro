@@ -285,6 +285,54 @@ function computePlacidusHouses(RA_MC_deg, latDeg, dec_MC_deg) {
    ============================================================ */
 
 function computeFullChart(latStr, lonStr, dateStr, timeStr) {
+/* ============================================================
+   BLOC 8 — AFFICHAGE DES RÉSULTATS
+   ============================================================ */
+
+function displayResult(res) {
+    if (res.error) {
+        document.getElementById("output").textContent = "ERREUR : " + res.error;
+        return;
+    }
+
+    let txt = "";
+
+    txt += "=== HEURES ===\n";
+    txt += "Heure légale : " + res.heures.heure_legale + "\n";
+    txt += "UT           : " + res.heures.UT + "\n";
+    txt += "Locale       : " + res.heures.locale + "\n";
+    txt += "LST (°)      : " + res.heures.LST_deg.toFixed(4) + "\n\n";
+
+    txt += "=== ANGLES ===\n";
+    txt += "Ascendant : " + res.angles.asc_deg.toFixed(4) + "°  (zodiac " + res.angles.asc_sign.toFixed(2) + "°)\n";
+    txt += "Milieu du Ciel : " + res.angles.mc_deg.toFixed(4) + "° (zodiac " + res.angles.mc_sign.toFixed(2) + "°)\n\n";
+
+    txt += "=== MAISONS PLACIDUS ===\n";
+    for (let h of [11, 12, 2, 3]) {
+        const M = res.maisons[h];
+        if (!M) {
+            txt += "Maison " + h + " : impossible\n";
+        } else {
+            txt += "Maison " + h + " : RA = " +
+                M.ra.toFixed(4) + "°,  Long = " +
+                M.lon.toFixed(4) + "°\n";
+        }
+    }
+
+    document.getElementById("output").textContent = txt;
+}
+
+/* Fonction appelée par le bouton */
+function runCalc() {
+    const result = computeFullChart(
+        document.getElementById("lat").value,
+        document.getElementById("lon").value,
+        document.getElementById("date").value,
+        document.getElementById("time").value
+    );
+
+    displayResult(result);
+}
 
     /* ------------------------------
        1. PARSE COORDONNÉES
