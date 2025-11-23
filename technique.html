@@ -577,32 +577,56 @@ console.log(t7);
     const result = computeFullChart(lat, lon, date, time);
     displayResult(result);
 }
-function displayResult(data) {
+function displayResult(t) {
+
+    const out = document.getElementById("output");
+
+    // sécurité anti-crash
+    if (!t || !t.heures || !t.angles || !t.maisons) {
+        out.textContent = "Erreur : données incomplètes.";
+        return;
+    }
+
+    function degToAstro(d) {
+        if (isNaN(d)) return "--";
+
+        const signs = [
+            "♈ Bélier","♉ Taureau","♊ Gémeaux","♋ Cancer",
+            "♌ Lion","♍ Vierge","♎ Balance","♏ Scorpion",
+            "♐ Sagittaire","♑ Capricorne","♒ Verseau","♓ Poissons"
+        ];
+
+        let D = (d % 360 + 360) % 360;
+        let sign = Math.floor(D / 30);
+        let deg  = Math.floor(D % 30);
+        let min  = Math.round(((D % 30) - deg) * 60);
+
+        if (min === 60) { min = 0; deg++; }
+
+        return `${deg}°${String(min).padStart(2,'0')} ${signs[sign]}`;
+    }
+
     let txt = "";
 
     txt += "=== HEURES ===\n";
-    txt += "Heure légale : " + data.heures.heure_legale + "\n";
-    txt += "UT           : " + data.heures.UT + "\n";
-    txt += "Locale       : " + data.heures.locale + "\n";
-    txt += "LST (°)      : " + data.heures.LST_deg.toFixed(3) + "\n\n";
+    txt += `Heure légale : ${t.heures.heure_legale}\n`;
+    txt += `UT : ${t.heures.UT}\n`;
+    txt += `Locale : ${t.heures.locale}\n`;
+    txt += `LST : ${t.heures.LST_deg.toFixed(4)}°\n\n`;
 
     txt += "=== ANGLES ===\n";
-    txt += "Ascendant : " + data.angles.asc_deg.toFixed(3) + "°\n";
-    txt += "Milieu du Ciel : " + data.angles.mc_deg.toFixed(3) + "°\n\n";
+    txt += `Ascendant : ${degToAstro(t.angles.asc_deg)}\n`;
+    txt += `Milieu du Ciel : ${degToAstro(t.angles.mc_deg)}\n\n`;
 
     txt += "=== MAISONS PLACIDUS ===\n";
-    for (const h of Object.keys(data.maisons)) {
-        const m = data.maisons[h];
-        if (m === null) {
-            txt += "Maison " + h + " : impossible à calculer (latitude trop élevée)\n";
-        } else {
-            txt +=
-                "Maison " + h +
-                " : RA = " + m.ra.toFixed(3) + "°, " +
-                "Long = " + m.lon.toFixed(3) + "°\n";
+    for (const h of [11,12,2,3,5,6]) {
+        if (t.maisons[h]) {
+            txt += `Maison ${h} : ${degToAstro(t.maisons[h].lon)}\n`;
         }
     }
 
+    out.textContent = txt;
+}
     document.getElementById("output").textContent = txt;
 }
 
