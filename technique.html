@@ -222,12 +222,7 @@ function computeAngles(LSTdeg, latDeg, JD) {
 
     return { ASC, MC };
 }
-console.log(
-  prepareTimeData("1962-01-29", "19:30", "0h 12m 48s E") );
-let t = prepareTimeData("1962-01-29", "19:30", "0h 12m 48s E");
-console.log(
-  computeAngles(t.LST, parseLat("46° 06' N"), t.JD)
-);
+
 /* ============================================================
    BLOC 4 — DEMI-ARCS PLACIDUS (ALGORITHME PROFESSIONNEL)
    ============================================================ */
@@ -286,46 +281,30 @@ function placidusRA(RA_MC, latRad, dec_MC_Rad, target) {
 
     return RA_MC + offset;  // RA en radians
 }
-// ==== TEST DU BLOC 4 ====
+/* ============================================================
+   BLOC 5 — CONVERSION RA → LONGITUDE ÉCLIPTIQUE
+   ============================================================ */
 
-// Exemple : 29 janv 1962, 19h30, latitude 46°06'N
-let tt = prepareTimeData("1962-01-29", "19:30", "0h 12m 48s E");
+/* RA (ascension droite) + déclinaison + obliquité → longitude écliptique */
+function raDecToLongitude(RA, dec, epsilon) {
 
-// Obliquité
-let eps = meanObliquity(t.JD);
+    /* Formule d’inversion des coordonnées :
+       tan(λ) = (sin(RA)*cos(ε) + tan(dec)*sin(ε)) / cos(RA)
+    */
 
-// MC (déjà calculé via bloc 3)
-let ang = computeAngles(t.LST, parseLat("46° 06' N"), t.JD);
+    const y =
+        Math.sin(RA) * Math.cos(epsilon) +
+        Math.tan(dec) * Math.sin(epsilon);
 
-// RA du MC (en radians)
-let RA_MC = toRad(ang.MC);
+    const x = Math.cos(RA);
 
-// Déclinaison du MC
-let decMC = declination(toRad(ang.MC), eps);
+    let lambda = Math.atan2(y, x);  // en radians
 
-// Demi-arc pour maison 11
-console.log("Offset maison 11 =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC, 11));
-console.log("Offset maison 12 =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC, 12));
-console.log("Offset maison 2  =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC,  2));
-console.log("Offset maison 3  =", placidusSemiArc(toRad(parseLat("46° 06' N")), decMC,  3));
-
-// RA de la maison 11
-console.log("RA maison 11 =", placidusRA(RA_MC, toRad(parseLat("46° 06' N")), decMC, 11));
+    lambda = normalize(toDeg(lambda)); // en degrés
+    return lambda;
+}
 // ===== TEST BLOC 5 =====
 let eps5 = meanObliquity(tt.JD);
-
-// MC déjà calculé bloc 3
-let mcTest = computeAngles(tt.LST, parseLat("46° 06' N"), tt.JD);
-let decMC_test = declination(toRad(mcTest.MC), eps5);
-
-let RA_MC_test = toRad(mcTest.MC);
-
-// Conversion MC RA/DEC → longitude (doit redonner MC)
-console.log("Test conversion MC RA→λ :", 
-    raDecToLongitude(RA_MC_test, decMC_test, eps5)
-);
-// ===== TEST BLOC 5 =====
-let eps55 = meanObliquity(tt.JD);
 
 // MC déjà calculé bloc 3
 let mcTest = computeAngles(tt.LST, parseLat("46° 06' N"), tt.JD);
