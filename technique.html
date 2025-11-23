@@ -177,6 +177,51 @@ function prepareTimeData(dateStr, timeLegalStr, lonStr) {
         LST
     };
 }
+/* ============================================================
+   BLOC 3 — ASCENDANT & MILIEU DU CIEL EXACTS
+   ============================================================ */
+
+/* Obliquité moyenne (astrologie classique) */
+function meanObliquity(JD) {
+    const T = (JD - 2451545.0) / 36525;
+    const seconds =
+        21.448 -
+        46.8150 * T -
+        0.00059 * T*T +
+        0.001813 * T*T*T;
+    return toRad(23 + (26 + seconds/60)/60);
+}
+
+/* Calcule ASC & MC en degrés écliptiques */
+function computeAngles(LSTdeg, latDeg, JD) {
+
+    const ε = meanObliquity(JD);
+    const φ = toRad(latDeg);
+    const LST = toRad(LSTdeg);
+
+    /* === MC ===
+       MC = arctan( tan(LST) / cos(ε) )
+       puis normalisation selon le quadrant
+    */
+    let MC = Math.atan2( Math.tan(LST), Math.cos(ε) );
+    MC = normalize( toDeg(MC) );
+    if (Math.cos(LST) < 0) MC = normalize(MC + 180);
+
+    /* === ASCENDANT ===
+       Formule professionnelle :
+       asc = arctan2(
+         -cos(ε)*tan(φ) - sin(ε)*sin(LST),
+          cos(LST)
+       )
+    */
+    let ASC = Math.atan2(
+        -Math.cos(ε)*Math.tan(φ) - Math.sin(ε)*Math.sin(LST),
+        Math.cos(LST)
+    );
+    ASC = normalize( toDeg(ASC) );
+
+    return { ASC, MC };
+}
 
 </script>
 
