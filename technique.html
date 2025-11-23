@@ -32,240 +32,57 @@
 <pre id="output">Aucun calcul.</pre>
 
 <script>
-/* =========================================================================
-   1. OUTILS DE BASE : CONVERSIONS HEURES / LONGITUDE / SECONDES
-   ========================================================================= */
+/* ============================================
+   BLOC 1 — FONCTIONS DE BASE (SÉCURISÉ)
+   ============================================ */
 
-function parseLongitude(lon) {
-    const m = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
-    if (!m) return 0;
-    let sec = (+m[1])*3600 + (+m[2])*60 + (+m[3]);
-    if (m[4] === "O") sec = -sec;
-    return sec;
+/* Conversions */
+function toRad(d) { return d * Math.PI / 180; }
+function toDeg(r) { return r * 180 / Math.PI; }
+function normalize(a) { a = a % 360; return a < 0 ? a + 360 : a; }
+
+/* Format astrologique */
+function dms(a) {
+    const d = Math.floor(a);
+    const m = Math.round((a - d) * 60);
+    return `${d}°${m.toString().padStart(2,"0")}'`;
 }
 
-function frenchOffset(dateObj) {
-    const y = dateObj.getUTCFullYear();
-    if (y < 1976) return -1;
-    const m = dateObj.getUTCMonth()+1;
-    if ([11,12,1,2].includes(m)) return -1;
-    if ([6,7,8].includes(m)) return -2;
-    return -1;
-}
-
-function timeToSeconds(t) {
-    const [H,M] = t.split(":").map(x=>parseInt(x));
-    return H*3600 + M*60;
-}
-
-function secondsToHMS(sec) {
-    sec = (sec % 86400 + 86400) % 86400;
-    const h = Math.floor(sec/3600);
-    const m = Math.floor((sec%3600)/60);
-    const s = Math.floor(sec%60);
-    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-}
-
-/* =========================================================================
-   1B. FORMATAGE ASTROLOGIQUE (° ’ + SIGNE)
-   ========================================================================= */
-
-function toDMS(valueDeg) {
-    valueDeg = (valueDeg % 360 + 360) % 360;
-    const d = Math.floor(valueDeg);
-    const m = Math.round((valueDeg - d) * 60);
-    return `${d}°${String(m).padStart(2,"0")}'`;
-}
-
-const zodiacSigns = [
+const SIGNS = [
     "♈ Bélier","♉ Taureau","♊ Gémeaux","♋ Cancer",
     "♌ Lion","♍ Vierge","♎ Balance","♏ Scorpion",
     "♐ Sagittaire","♑ Capricorne","♒ Verseau","♓ Poissons"
 ];
+function signOf(a) { return SIGNS[Math.floor(a/30)]; }
 
-function zodiacOf(deg) {
-    deg = (deg % 360 + 360) % 360;
-    const i = Math.floor(deg / 30);
-    return zodiacSigns[i];
+/* Décode latitude type "46° 06' N" */
+function parseLat(latStr) {
+    const m = latStr.match(/(\d+)°\s+(\d+)'?\s*(N|S)/i);
+    const deg = parseInt(m[1]);
+    const min = parseInt(m[2]);
+    const sign = (m[3].toUpperCase()==="N") ? 1 : -1;
+    return sign * (deg + min/60);
 }
 
-function formatCusp(deg) {
-    return `${toDMS(deg)} ${zodiacOf(deg)}`;
+/* Décode longitude type "0h 12m 48s E" en SECONDES */
+function parseLongitude(lonStr) {
+    const m = lonStr.match(/(\d+)h\s+(\d+)m\s+(\d+)s\s+(E|O)/i);
+    const h = parseInt(m[1]);
+    const mn = parseInt(m[2]);
+    const s = parseInt(m[3]);
+    const sign = (m[4].toUpperCase()==="E") ? 1 : -1;
+    return sign * (h*3600 + mn*60 + s);
 }
 
-/* =========================================================================
-   2. TEMPS SIDÉRAL — FORMULE ASTROLOGIQUE PRO
-   ========================================================================= */
-
-function gmstAstrologique(JD_ut, ut_seconds) {
-
-    const JD0 = Math.floor(JD_ut - 0.5) + 0.5;
-    const T = (JD0 - 2451545.0) / 36525;
-
-    let GMST0 =
-        24110.54841 +
-        8640184.812866*T +
-        0.093104*T*T -
-        0.0000062*T*T*T;
-
-    let GMST = GMST0 + 1.00273790935 * ut_seconds;
-
-    GMST0 = (GMST0 % 86400 + 86400) % 86400;
-    GMST  = (GMST  % 86400 + 86400) % 86400;
-
-    return {GMST, GMST0, JD0};
+/* Convertit secondes → HH:MM:SS */
+function secToHMS(sec) {
+    sec = (sec % 86400 + 86400) % 86400;
+    const h = Math.floor(sec/3600);
+    const m = Math.floor((sec%3600)/60);
+    const s = Math.floor(sec%60);
+    return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
 }
 
-/* =========================================================================
-   3. PLACIDUS PRO EXACT — VERSION LOGICIELS PRO
-   ========================================================================= */
-
-function placidusCusps(LST_deg, lat_deg, eps_rad) {
-
-    const toRad = d => d*Math.PI/180;
-    const toDeg = r => r*180/Math.PI;
-
-    const φ = toRad(lat_deg);
-    const θ = toRad(LST_deg);
-
-    function ascendant() {
-        const A = Math.atan2(
-            -Math.cos(eps_rad)*Math.tan(φ) - Math.sin(eps_rad)*Math.sin(θ),
-            Math.cos(θ)
-        );
-        return (toDeg(A)+360)%360;
-    }
-
-    const ASC = ascendant();
-
-    function semiArc(dec) {
-        return Math.acos(-Math.tan(φ)*Math.tan(dec));
-    }
-
-    function RAtoEclLongitude(RA) {
-        const dec = Math.asin(Math.sin(eps_rad)*Math.sin(RA));
-        const y = Math.sin(RA)*Math.cos(eps_rad);
-        const x = Math.cos(RA);
-        let λ = Math.atan2(y,x);
-        return (toDeg(λ)+360)%360;
-    }
-
-    function cuspHouse(n, RA_MC) {
-
-        const angle = {
-            11: RA_MC + Math.PI/6,
-            12: RA_MC + Math.PI/3,
-            2:  RA_MC - Math.PI/3,
-            3:  RA_MC - Math.PI/6
-        }[n];
-
-        let RA = angle;
-        for (let i=0;i<40;i++) {
-            const dec = Math.asin(Math.sin(eps_rad)*Math.sin(RA));
-            const SA = semiArc(dec);
-            const target = (n===11||n===12) ? SA/3 : -SA/3;
-            const f = RA_MC - RA + target;
-            RA = RA + f;
-        }
-        return (RA+2*Math.PI)%(2*Math.PI);
-    }
-
-    const RA_MC = θ;
-
-    const cusp11 = cuspHouse(11, RA_MC);
-    const cusp12 = cuspHouse(12, RA_MC);
-    const cusp2  = cuspHouse(2, RA_MC);
-    const cusp3  = cuspHouse(3, RA_MC);
-
-    return {
-        ASC,
-        MC: LST_deg,
-        cusp11: RAtoEclLongitude(cusp11),
-        cusp12: RAtoEclLongitude(cusp12),
-        cusp2 : RAtoEclLongitude(cusp2),
-        cusp3 : RAtoEclLongitude(cusp3)
-    };
-}
-
-/* =========================================================================
-   4. CALCUL COMPLET (ASC, MC, PLACIDUS PRO)
-   ========================================================================= */
-
-function computeChart({lat, lon, date, timeLocal, ut_seconds}) {
-
-    const latM = lat.match(/(\d+)° (\d+)' (N|S)/);
-    const φ = (latM[3]=="N"?1:-1)*(+latM[1] + (+latM[2]/60));
-
-    const dt = new Date(`${date}T${timeLocal}`);
-    const JD = dt.getTime()/86400000 + 2440587.5;
-
-    const {GMST, GMST0} = gmstAstrologique(JD, ut_seconds);
-
-    const lon_sec = parseLongitude(lon);
-    const LST_sec = (GMST + lon_sec + 86400) % 86400;
-    const LST_deg = LST_sec/86400*360;
-
-    const eps = 23.439291 * Math.PI/180;
-
-    const houses = placidusCusps(LST_deg, φ, eps);
-
-    return {
-        TS0 : secondsToHMS(GMST0),
-        GMST: secondsToHMS(GMST),
-        LST : secondsToHMS(LST_sec),
-        asc: houses.ASC,
-        mc : houses.MC,
-        h11: houses.cusp11,
-        h12: houses.cusp12,
-        h2 : houses.cusp2,
-        h3 : houses.cusp3
-    };
-}
-
-/* =========================================================================
-   5. RUN + DEBUG + AFFICHAGE ASTROLOGIQUE
-   ========================================================================= */
-
-function runCalc(){
-    const lat=document.getElementById("lat").value;
-    const lon=document.getElementById("lon").value;
-    const date=document.getElementById("date").value;
-    const timeLegal=document.getElementById("time").value;
-
-    const dtL = new Date(`${date}T${timeLegal}:00`);
-    const offset = frenchOffset(dtL);
-    const legal_seconds = timeToSeconds(timeLegal);
-    const ut_seconds = legal_seconds + offset*3600;
-
-    const lon_seconds = parseLongitude(lon);
-    const local_seconds = ut_seconds + lon_seconds;
-    const timeLocal = secondsToHMS(local_seconds);
-
-    const r = computeChart({
-        lat, lon, date, timeLocal, ut_seconds
-    });
-
-    document.getElementById("debug").textContent =
-`Heure légale  : ${timeLegal}
-UT            : ${secondsToHMS(ut_seconds)}
-Longitude     : ${secondsToHMS(lon_seconds)}
-Heure locale  : ${timeLocal}
-
-TS à minuit   : ${r.TS0}
-GMST instant  : ${r.GMST}
-LST (naiss.)  : ${r.LST}
-`;
-
-    document.getElementById("output").textContent =
-`ASC        : ${formatCusp(r.asc)}
-MC         : ${formatCusp(r.mc)}
-
-Maison 11  : ${formatCusp(r.h11)}
-Maison 12  : ${formatCusp(r.h12)}
-Maison 2   : ${formatCusp(r.h2)}
-Maison 3   : ${formatCusp(r.h3)}
-`;
-}
 </script>
 
 </body>
