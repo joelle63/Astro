@@ -304,10 +304,10 @@ function raDecToLongitude(RA, dec, epsilon) {
     return lambda;
 }
 // ===== TEST BLOC 5 =====
-let eps5 = meanObliquity(t.JD);
+let eps5 = meanObliquity(tt.JD);
 
 // MC déjà calculé bloc 3
-let mcTest = computeAngles(t.LST, parseLat("46° 06' N"), tt.JD);
+let mcTest = computeAngles(tt.LST, parseLat("46° 06' N"), tt.JD);
 let decMC_test = declination(toRad(mcTest.MC), eps5);
 
 let RA_MC_test = toRad(mcTest.MC);
@@ -316,6 +316,46 @@ let RA_MC_test = toRad(mcTest.MC);
 console.log("Test conversion MC RA→λ :", 
     raDecToLongitude(RA_MC_test, decMC_test, eps5)
 );
+/* =============================
+   TEST GLOBAL BLOCS 1 → 5
+   ============================= */
+
+console.log("===== TEST BLOCS 1 → 5 =====");
+
+/* Bloc 1 : longitude */
+console.log("Bloc1 lonSeconds =", parseLongitude("0h 12m 48s E"));
+
+/* Bloc 2 : heure légale → UT → locale */
+const testDate = "1962-01-29";
+const testTime = "19:30";
+const dtLegalTest = new Date(`${testDate}T${testTime}:00`);
+const offsetTest = frenchOffset(dtLegalTest);
+const legalSecTest = timeToSeconds(testTime);
+const utSecTest = legalSecTest + offsetTest * 3600;
+const lonSecTest = parseLongitude("0h 12m 48s E");
+const localSecTest = utSecTest + lonSecTest;
+
+console.log("Bloc2 offset =", offsetTest);
+console.log("Bloc2 UT seconds =", utSecTest);
+console.log("Bloc2 Local seconds =", localSecTest);
+console.log("Bloc2 Local HMS =", secondsToHMS(localSecTest));
+
+/* Bloc 3 : RA MC + Sidéral */
+const timeLocalTest = secondsToHMS(localSecTest);
+console.log("Bloc3 timeLocal =", timeLocalTest);
+
+const sid3 = computeSidereal(testDate, timeLocalTest, 0.053);
+// (0.053° = 0h 12m 48s)
+console.log("Bloc3 Sidereal =", sid3);
+
+/* Bloc 4 : demi-arcs */
+const da = computeDemiArcs(46.1, sid3.RA_MC);
+console.log("Bloc4 Demi-Arcs =", da);
+
+/* Bloc 5 : conversion RA→Longitude */
+console.log("Bloc5 RAtoLon 40° =", RAtoLon(40, 46.1, da));
+
+console.log("===== FIN TEST =====");
 
 </script>
 
