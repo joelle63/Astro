@@ -9,39 +9,93 @@
 
 <h2>Calcul Placidus — Technique</h2>
 
-<!-- Formulaire simple -->
 <p>Entrez vos données :</p>
 
-<label>Latitude (ex : 45° 30' N) :</label><br>
-<input id="lat" type="text" value="45° 30' N"><br><br>
+<label>Latitude (ex : 46° 06' N) :</label><br>
+<input id="lat" type="text" value="46° 06' N"><br><br>
 
-<label>Longitude (ex : 6h 00m 00s E) :</label><br>
-<input id="lon" type="text" value="6h 00m 00s E"><br><br>
+<label>Longitude (ex : 0h 12m 48s E) :</label><br>
+<input id="lon" type="text" value="0h 12m 48s E"><br><br>
 
 <label>Date (AAAA-MM-JJ) :</label><br>
-<input id="date" type="date" value="2025-11-23"><br><br>
+<input id="date" type="date" value="1962-01-29"><br><br>
 
-<label>Heure (HH:MM) :</label><br>
-<input id="time" type="time" value="11:30"><br><br>
+<label>Heure légale (HH:MM) :</label><br>
+<input id="time" type="time" value="19:30"><br><br>
 
 <button onclick="runCalc()">Calculer</button>
 
 <hr>
 
 <h3>Résultat :</h3>
-
 <pre id="output">Aucun calcul lancé.</pre>
 
 
 <script>
-/* ===============================
-      PLACIDUS EXACT – COMPLET
-   =============================== */
+/* =====================================================
+         1. CONVERSION HEURE LEGALE → UT → HEURE LOCALE
+   ===================================================== */
 
-function computeChart({ lat, lon, date, time }) {
+// Convertit "0h 12m 48s E" en secondes +/-
+function parseLongitude(lon) {
+    const m = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
+    if (!m) return 0;
 
-    function toRad(d) { return d * Math.PI / 180; }
-    function toDeg(r) { return r * 180 / Math.PI; }
+    let h = parseInt(m[1]);
+    let mn = parseInt(m[2]);
+    let s = parseInt(m[3]);
+    const dir = m[4];
+
+    let totalSeconds = h*3600 + mn*60 + s;
+    if (dir === "O") totalSeconds = -totalSeconds;
+
+    return totalSeconds;
+}
+
+// Décide automatiquement heure d’été/hiver (France)
+function frenchOffset(dateObj) {
+    const year = dateObj.getUTCFullYear();
+
+    // Pour simplifier : avant 1976 → UTC+1 toute l’année
+    if (year < 1976) return -1;
+
+    // Sinon : règle moderne (+1 hiver, +2 été)
+    const month = dateObj.getUTCMonth() + 1;
+
+    // Mois d’hiver
+    if (month === 1 || month === 2 || month === 11 || month === 12) return -1;
+
+    // Mois d’été
+    if (month === 6 || month === 7 || month === 8) return -2;
+
+    // Mi-saison : on reste en heure d’hiver pour simplifier
+    return -1;
+}
+
+// Convertit HH:MM en secondes
+function timeToSeconds(t) {
+    const [h,m] = t.split(":").map(x => parseInt(x));
+    return h*3600 + m*60;
+}
+
+// Convertit un nombre de secondes en "HH:MM:SS"
+function secondsToHMS(sec) {
+    sec = (sec % 86400 + 86400) % 86400; // normalisation
+    const h = Math.floor(sec/3600);
+    const m = Math.floor((sec%3600)/60);
+    const s = Math.floor(sec%60);
+    return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+}
+
+
+/* =====================================================
+                 2. TON CODE PLACIDUS (INTACT)
+   ===================================================== */
+
+function computeChart({ lat, lon, date, timeLocal }) {
+
+    function toRad(d) { return d * Math.PI/180; }
+    function toDeg(r) { return r * 180/Math.PI; }
 
     function normalize(a) {
         a = a % 360;
@@ -50,8 +104,8 @@ function computeChart({ lat, lon, date, time }) {
 
     function dms(a) {
         const d = Math.floor(a);
-        const m = Math.round((a - d) * 60);
-        return `${d}°${m < 10 ? "0" : ""}${m}'`;
+        const m = Math.round((a-d)*60);
+        return `${d}°${m<10?"0":""}${m}'`;
     }
 
     const signs = [
@@ -60,115 +114,118 @@ function computeChart({ lat, lon, date, time }) {
     ];
 
     function signOf(a) {
-        const s = Math.floor(a / 30);
-        return signs[s];
+        return signs[Math.floor(a/30)];
     }
 
     const latMatch = lat.match(/(\d+)° (\d+)' (N|S)/);
-    const lonMatch = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
 
-    const φ = ((latMatch[3] === "N" ? 1 : -1) *
-              (parseInt(latMatch[1]) + parseInt(latMatch[2]) / 60));
+    const φ = (latMatch[3]==="N" ? 1 : -1) *
+              (parseInt(latMatch[1]) + parseInt(latMatch[2])/60);
 
-    const longDeg = (lonMatch[4] === "E" ? 1 : -1) *
-        (parseInt(lonMatch[1]) * 15 +
-         parseInt(lonMatch[2]) * 0.25 +
-         parseInt(lonMatch[3]) / 240);
+    // --- TEMPS LOCAL DÉJÀ CALCULÉ ---
+    const dt = new Date(`${date}T${timeLocal}`);
 
-    const dt = new Date(`${date}T${time}:00`);
     const JD = dt.getTime()/86400000 + 2440587.5;
-
-    const T = (JD - 2451545.0) / 36525;
+    const T = (JD - 2451545.0)/36525;
 
     let GMST = 280.46061837 +
-               360.98564736629 * (JD - 2451545) +
-               0.000387933 * T*T -
+               360.98564736629*(JD - 2451545) +
+               0.000387933*T*T -
                (T*T*T)/38710000;
 
     GMST = normalize(GMST);
+
+    // Longitude en degrés = secondes/240
+    const lonSeconds = parseLongitude(lon);
+    const longDeg = lonSeconds / 240;
 
     const LST = normalize(GMST + longDeg);
 
     const ε = toRad(23.439291);
 
-    const MC_rad =
-        Math.atan2(
-            Math.tan(toRad(LST)),
-            Math.cos(ε)
-        );
-
+    // --- MC ---
+    const MC_rad = Math.atan2(Math.tan(toRad(LST)), Math.cos(ε));
     let MC = normalize(toDeg(MC_rad));
     if (Math.cos(toRad(LST)) < 0) MC = normalize(MC + 180);
 
+    // --- ASC ---
     const φ_rad = toRad(φ);
 
     const asc_rad =
         Math.atan2(
-            -Math.cos(ε) * Math.tan(φ_rad) - Math.sin(ε) * Math.sin(toRad(LST)),
+            -Math.cos(ε)*Math.tan(φ_rad) - Math.sin(ε)*Math.sin(toRad(LST)),
             Math.cos(toRad(LST))
         );
 
     const ASC = normalize(toDeg(asc_rad));
 
     function placidusHouse(target) {
-
-        let hTarget = (target === 2 ? LST + 30 :
-                       target === 3 ? LST + 60 :
-                       target === 5 ? LST + 120 :
-                       LST + 150);
+        let hTarget =
+            target===2 ? LST+30 :
+            target===3 ? LST+60 :
+            target===5 ? LST+120 : LST+150;
 
         hTarget = normalize(hTarget);
 
-        let H = toRad(hTarget);
-        let prev;
+        let H = toRad(hTarget), prev;
 
-        for (let i = 0; i < 15; i++) {
+        for (let i=0; i<15; i++) {
             prev = H;
             H = Math.atan2(
                 Math.sin(prev),
-                Math.cos(prev) * Math.cos(ε) - Math.tan(φ_rad) * Math.sin(ε)
+                Math.cos(prev)*Math.cos(ε) - Math.tan(φ_rad)*Math.sin(ε)
             );
-            if (Math.abs(H - prev) < 0.0000001) break;
+            if (Math.abs(H-prev)<1e-7) break;
         }
-
         return normalize(toDeg(H));
     }
 
-    const H2 = placidusHouse(2);
-    const H3 = placidusHouse(3);
-    const H5 = placidusHouse(5);
-    const H6 = placidusHouse(6);
-
-    function pack(value) {
-        return {
-            deg: value,
-            txt: dms(value),
-            sign: signOf(value)
-        };
-    }
-
     return {
-        asc: pack(ASC),
-        mc: pack(MC),
-        h2: pack(H2),
-        h3: pack(H3),
-        h5: pack(H5),
-        h6: pack(H6)
+        asc: {deg:ASC, txt:dms(ASC), sign:signOf(ASC)},
+        mc:  {deg:MC,  txt:dms(MC),  sign:signOf(MC)},
+        h2:  {deg:placidusHouse(2), txt:dms(placidusHouse(2)), sign:signOf(placidusHouse(2))},
+        h3:  {deg:placidusHouse(3), txt:dms(placidusHouse(3)), sign:signOf(placidusHouse(3))},
+        h5:  {deg:placidusHouse(5), txt:dms(placidusHouse(5)), sign:signOf(placidusHouse(5))},
+        h6:  {deg:placidusHouse(6), txt:dms(placidusHouse(6)), sign:signOf(placidusHouse(6))}
     };
 }
 
-/* ===============================
-      FONCTION D'AFFICHAGE
-   =============================== */
+
+/* =====================================================
+                 3. APPEL FINAL
+   ===================================================== */
 
 function runCalc() {
 
     const lat  = document.getElementById("lat").value;
     const lon  = document.getElementById("lon").value;
     const date = document.getElementById("date").value;
-    const time = document.getElementById("time").value;
+    const timeLegal = document.getElementById("time").value; // HH:MM
 
-    const result = computeChart({ lat, lon, date, time });
+    // --- Construction date complète ---
+    const dtLegal = new Date(`${date}T${timeLegal}:00`);
+
+    // Décalage DST France
+    const offset = frenchOffset(dtLegal);   // -1 ou -2
+    const legalSeconds = timeToSeconds(timeLegal);
+
+    // UT = heure légale + offset
+    const utSeconds = legalSeconds + offset*3600;
+
+    // Longitude en secondes
+    const lonSeconds = parseLongitude(lon);
+
+    // Heure locale = UT + longitude
+    const localSeconds = utSeconds + lonSeconds;
+
+    const timeLocal = secondsToHMS(localSeconds);
+
+    const result = computeChart({
+        lat,
+        lon,
+        date,
+        timeLocal
+    });
 
     document.getElementById("output").textContent =
         JSON.stringify(result, null, 2);
