@@ -568,6 +568,44 @@ const t7 = computeFullChart(
     "19:30"
 );
 console.log(t7);
+   function runCalc() {
+    const lat = document.getElementById("lat").value;
+    const lon = document.getElementById("lon").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+
+    const result = computeFullChart(lat, lon, date, time);
+    displayResult(result);
+}
+function displayResult(data) {
+    let txt = "";
+
+    txt += "=== HEURES ===\n";
+    txt += "Heure légale : " + data.heures.heure_legale + "\n";
+    txt += "UT           : " + data.heures.UT + "\n";
+    txt += "Locale       : " + data.heures.locale + "\n";
+    txt += "LST (°)      : " + data.heures.LST_deg.toFixed(3) + "\n\n";
+
+    txt += "=== ANGLES ===\n";
+    txt += "Ascendant : " + data.angles.asc_deg.toFixed(3) + "°\n";
+    txt += "Milieu du Ciel : " + data.angles.mc_deg.toFixed(3) + "°\n\n";
+
+    txt += "=== MAISONS PLACIDUS ===\n";
+    for (const h of Object.keys(data.maisons)) {
+        const m = data.maisons[h];
+        if (m === null) {
+            txt += "Maison " + h + " : impossible à calculer (latitude trop élevée)\n";
+        } else {
+            txt +=
+                "Maison " + h +
+                " : RA = " + m.ra.toFixed(3) + "°, " +
+                "Long = " + m.lon.toFixed(3) + "°\n";
+        }
+    }
+
+    document.getElementById("output").textContent = txt;
+}
+
 console.log("=== FORMAT ASTROLOGIQUE (ASC / MC / MAISONS) ===");
 
 console.log("Ascendant :", formatZodiac(t7.angles.asc_deg));
