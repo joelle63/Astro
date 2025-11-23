@@ -1,8 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Technique Astro</title>
+</head>
+
+<body>
+
+<h2>Calcul Placidus — Technique</h2>
+<p>Ouvre la console pour tester la fonction <code>computeChart()</code>.</p>
+
+<script>
 /* ===============================
       PLACIDUS EXACT – COMPLET
    =============================== */
 
-export function computeChart({ lat, lon, date, time }) {
+function computeChart({ lat, lon, date, time }) {
 
     /* --------------------------
        0. Préparation géométrique
@@ -99,9 +112,6 @@ export function computeChart({ lat, lon, date, time }) {
     -------------------------- */
 
     function placidusHouse(target) {
-        // target = 2, 3, 5, 6
-        const diurnal = target === 11 || target === 12 ? -1 : 1;
-
         let hTarget = (target === 2 ? LST + 30 :
                        target === 3 ? LST + 60 :
                        target === 5 ? LST + 120 :
@@ -150,3 +160,7 @@ export function computeChart({ lat, lon, date, time }) {
         h6: pack(H6)
     };
 }
+</script>
+
+</body>
+</html>
