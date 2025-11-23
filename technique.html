@@ -311,6 +311,32 @@ console.log("Offset maison 3  =", placidusSemiArc(toRad(parseLat("46° 06' N")),
 
 // RA de la maison 11
 console.log("RA maison 11 =", placidusRA(RA_MC, toRad(parseLat("46° 06' N")), decMC, 11));
+// ===== TEST BLOC 5 =====
+let eps5 = meanObliquity(tt.JD);
+
+// MC déjà calculé bloc 3
+let mcTest = computeAngles(tt.LST, parseLat("46° 06' N"), tt.JD);
+let decMC_test = declination(toRad(mcTest.MC), eps5);
+
+let RA_MC_test = toRad(mcTest.MC);
+
+// Conversion MC RA/DEC → longitude (doit redonner MC)
+console.log("Test conversion MC RA→λ :", 
+    raDecToLongitude(RA_MC_test, decMC_test, eps5)
+);
+// ===== TEST BLOC 5 =====
+let eps5 = meanObliquity(tt.JD);
+
+// MC déjà calculé bloc 3
+let mcTest = computeAngles(tt.LST, parseLat("46° 06' N"), tt.JD);
+let decMC_test = declination(toRad(mcTest.MC), eps5);
+
+let RA_MC_test = toRad(mcTest.MC);
+
+// Conversion MC RA/DEC → longitude (doit redonner MC)
+console.log("Test conversion MC RA→λ :", 
+    raDecToLongitude(RA_MC_test, decMC_test, eps5)
+);
 
 </script>
 
