@@ -8,7 +8,30 @@
 <body>
 
 <h2>Calcul Placidus — Technique</h2>
-<p>Ouvre la console pour tester la fonction <code>computeChart()</code>.</p>
+
+<!-- Formulaire simple -->
+<p>Entrez vos données :</p>
+
+<label>Latitude (ex : 45° 30' N) :</label><br>
+<input id="lat" type="text" value="45° 30' N"><br><br>
+
+<label>Longitude (ex : 6h 00m 00s E) :</label><br>
+<input id="lon" type="text" value="6h 00m 00s E"><br><br>
+
+<label>Date (AAAA-MM-JJ) :</label><br>
+<input id="date" type="date" value="2025-11-23"><br><br>
+
+<label>Heure (HH:MM) :</label><br>
+<input id="time" type="time" value="11:30"><br><br>
+
+<button onclick="runCalc()">Calculer</button>
+
+<hr>
+
+<h3>Résultat :</h3>
+
+<pre id="output">Aucun calcul lancé.</pre>
+
 
 <script>
 /* ===============================
@@ -16,10 +39,6 @@
    =============================== */
 
 function computeChart({ lat, lon, date, time }) {
-
-    /* --------------------------
-       0. Préparation géométrique
-    -------------------------- */
 
     function toRad(d) { return d * Math.PI / 180; }
     function toDeg(r) { return r * 180 / Math.PI; }
@@ -45,10 +64,6 @@ function computeChart({ lat, lon, date, time }) {
         return signs[s];
     }
 
-    /* --------------------------
-       1. Conversions latitude / longitude
-    -------------------------- */
-
     const latMatch = lat.match(/(\d+)° (\d+)' (N|S)/);
     const lonMatch = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
 
@@ -56,13 +71,9 @@ function computeChart({ lat, lon, date, time }) {
               (parseInt(latMatch[1]) + parseInt(latMatch[2]) / 60));
 
     const longDeg = (lonMatch[4] === "E" ? 1 : -1) *
-                    (parseInt(lonMatch[1]) * 15 +
-                     parseInt(lonMatch[2]) * 0.25 +
-                     parseInt(lonMatch[3]) / 240);
-
-    /* --------------------------
-       2. Temps sidéral local exact
-    -------------------------- */
+        (parseInt(lonMatch[1]) * 15 +
+         parseInt(lonMatch[2]) * 0.25 +
+         parseInt(lonMatch[3]) / 240);
 
     const dt = new Date(`${date}T${time}:00`);
     const JD = dt.getTime()/86400000 + 2440587.5;
@@ -78,10 +89,6 @@ function computeChart({ lat, lon, date, time }) {
 
     const LST = normalize(GMST + longDeg);
 
-    /* --------------------------
-       3. Calcul MC (exact)
-    -------------------------- */
-
     const ε = toRad(23.439291);
 
     const MC_rad =
@@ -93,10 +100,6 @@ function computeChart({ lat, lon, date, time }) {
     let MC = normalize(toDeg(MC_rad));
     if (Math.cos(toRad(LST)) < 0) MC = normalize(MC + 180);
 
-    /* --------------------------
-       4. ASCENDANT (exact)
-    -------------------------- */
-
     const φ_rad = toRad(φ);
 
     const asc_rad =
@@ -107,11 +110,8 @@ function computeChart({ lat, lon, date, time }) {
 
     const ASC = normalize(toDeg(asc_rad));
 
-    /* --------------------------
-       5. CUSPIDE PLACIDUS (itérations)
-    -------------------------- */
-
     function placidusHouse(target) {
+
         let hTarget = (target === 2 ? LST + 30 :
                        target === 3 ? LST + 60 :
                        target === 5 ? LST + 120 :
@@ -139,10 +139,6 @@ function computeChart({ lat, lon, date, time }) {
     const H5 = placidusHouse(5);
     const H6 = placidusHouse(6);
 
-    /* --------------------------
-       6. FORMAT DE SORTIE
-    -------------------------- */
-
     function pack(value) {
         return {
             deg: value,
@@ -159,6 +155,23 @@ function computeChart({ lat, lon, date, time }) {
         h5: pack(H5),
         h6: pack(H6)
     };
+}
+
+/* ===============================
+      FONCTION D'AFFICHAGE
+   =============================== */
+
+function runCalc() {
+
+    const lat  = document.getElementById("lat").value;
+    const lon  = document.getElementById("lon").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+
+    const result = computeChart({ lat, lon, date, time });
+
+    document.getElementById("output").textContent =
+        JSON.stringify(result, null, 2);
 }
 </script>
 
