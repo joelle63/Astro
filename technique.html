@@ -77,101 +77,25 @@ function frenchOffset(dateObj) {
     return -1;
 }
 
-/* ============================================================
-   BLOC 2 — UT, HEURE LOCALE, TEMPS SIDERAL (ASTROLOGIQUE)
-   ============================================================ */
+/* =====================================================
+   BLOC 2 — RA / Decl depuis le Temps Sidéral Local
+   ===================================================== */
 
-/* Décalage France (simple : -1 hiver / -2 été après 1976) */
-function frenchOffset(dateObj) {
-    const year = dateObj.getUTCFullYear();
-    if (year < 1976) return -1;
+function equatorialFromLST(lstDeg, obliquityDeg) {
+    // LST = Temps sidéral local
+    // obliquité de l’écliptique (≈ 23.44°)
+    const lst = lstDeg * Math.PI/180;
+    const eps = obliquityDeg * Math.PI/180;
 
-    const m = dateObj.getUTCMonth()+1;
-    if (m===6 || m===7 || m===8) return -2;
-    return -1;
+    // RA = arctan ( tan(LST) / cos(eps) )
+    const ra = Math.atan2(Math.tan(lst), Math.cos(eps)) * 180/Math.PI;
+
+    // Decl = arcsin ( sin(eps) * sin(LST) )
+    const dec = Math.asin(Math.sin(eps) * Math.sin(lst)) * 180/Math.PI;
+
+    return { ra, dec };
 }
 
-/* Convertit "HH:MM" en secondes */
-function timeToSec(t) {
-    const [h,m] = t.split(":").map(Number);
-    return h*3600 + m*60;
-}
-
-/* TEMPS SIDERAL ASTROLOGIQUE EXACT (Meeus / Astrologue) */
-function siderealTimeAstro(JD, localHours) {
-
-    /* Formule astrologique classique :
-       TS = TS0 + Heure locale + 3m56s * Heure locale
-       TS0 = TS à 0h TU pour la date donnée
-    */
-
-    /* 1 — Temps sidéral à Greenwich à 0h */
-    const T = (JD - 2451545.0) / 36525;
-
-    let TS0 =
-        100.46061837 +         // base
-        36000.770053608 * T +  // dérive annuelle
-        0.000387933 * T*T -    // correction
-        (T*T*T)/38710000;      // correction fine
-
-    TS0 = normalize(TS0);
-
-    /* 2 — Ajout de l’heure locale (en heures → degrés) */
-    const hourDeg = localHours * 15;  // 1h = 15°
-
-    /* 3 — Correction astrologique 3m56s = 3.9333 min = 0.065555 h */
-    const correction = localHours * 0.065555 * 15;
-
-    /* Temps sidéral final */
-    let LST = normalize(TS0 + hourDeg + correction);
-
-    return { TS0: normalize(TS0), LST };
-}
-
-/* ============================================================
-   FONCTION : prepareTimeData()
-   Convertit :
-   - Heure légale → UT
-   - UT → heure locale
-   - heure locale → TS0 + LST
-   ============================================================ */
-
-function prepareTimeData(dateStr, timeLegalStr, lonStr) {
-
-    const dtLegal = new Date(`${dateStr}T${timeLegalStr}:00`);
-
-    // 1 — Décalage horaire
-    const offset = frenchOffset(dtLegal);
-
-    // 2 — Heure légale → secondes
-    const legalSec = timeToSec(timeLegalStr);
-
-    // 3 — UT = heure légale + offset
-    const utSec = legalSec + offset * 3600;
-    const utHours = utSec / 3600;
-
-    // 4 — Longitude en secondes → heure locale
-    const lonSec = parseLongitude(lonStr);
-    const localSec = utSec + lonSec;
-    const localHours = localSec / 3600;
-
-    // 5 — Calcul du JD
-    const dtLocalISO = new Date(`${dateStr}T${secToHMS(localSec)}`);
-    const JD = dtLocalISO.getTime()/86400000 + 2440587.5;
-
-    // 6 — Temps sidéral astrologique
-    const { TS0, LST } = siderealTimeAstro(JD, localHours);
-
-    return {
-        utSec,
-        utHours,
-        localSec,
-        localHours,
-        JD,
-        TS0,
-        LST
-    };
-}
 /* ============================================================
    BLOC 3 — ASCENDANT & MILIEU DU CIEL EXACTS
    ============================================================ */
