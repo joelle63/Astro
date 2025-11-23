@@ -304,10 +304,10 @@ function raDecToLongitude(RA, dec, epsilon) {
     return lambda;
 }
 // ===== TEST BLOC 5 =====
-let eps5 = meanObliquity(tt.JD);
+let eps5 = meanObliquity(t.JD);
 
 // MC déjà calculé bloc 3
-let mcTest = computeAngles(tt.LST, parseLat("46° 06' N"), tt.JD);
+let mcTest = computeAngles(t.LST, parseLat("46° 06' N"), tt.JD);
 let decMC_test = declination(toRad(mcTest.MC), eps5);
 
 let RA_MC_test = toRad(mcTest.MC);
