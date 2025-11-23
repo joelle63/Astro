@@ -232,21 +232,9 @@ console.log("=== TEST BLOC 1 : PARSE / HEURE LOCALE ===");
 console.log("parseLongitude =", parseLongitude("0h 12m 48s E"));
 console.log("timeToSeconds =", timeToSeconds("19:30"));
 
-
 console.log("=== TEST BLOC 2 : RA / Decl depuis LST ===");
 const t2 = equatorialFromLST(48.0, 30.0);
 console.log("RA =", t2.ra, "Dec =", t2.dec);
-
-
-console.log("=== TEST BLOC 3 : EQ → EC ===");
-const t3 = ecFromEquatorial(100, 10);
-console.log("Zodiac =", t3.lon, "lat =", t3.lat);
-
-
-console.log("=== TEST BLOC 4 : DEMI-ARCS ===");
-const t4 = placidusOffsets(100, 46);
-console.log("Offsets :", t4);
-
 
 console.log("=== TEST BLOC 5 : RA → ZODIAC ===");
 const t5 = zodiacFromRA(123, 46);
