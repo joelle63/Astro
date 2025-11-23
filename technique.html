@@ -482,16 +482,22 @@ function runCalc() {
         LST_deg: LST
     },
 
+angles: {
+    asc_deg: ASC,
+    asc_zodiac: formatZodiac(ASC),
+    mc_deg: MC,
+    mc_zodiac: formatZodiac(MC)
+},
 
-    angles: {
-        asc_deg: ASC,
-        asc_sign: zodiacFromRA(ASC, latFinal).lon,
-        mc_deg: MC,
-        mc_sign: zodiacFromRA(MC, latFinal).lon
-    },
+    maisons: {
+    1: formatZodiac(ASC),
+    10: formatZodiac(MC),
+    2: plac[2] ? formatZodiac(plac[2].lon) : null,
+    3: plac[3] ? formatZodiac(plac[3].lon) : null,
+    5: plac[5] ? formatZodiac(plac[5].lon) : null,
+    6: plac[6] ? formatZodiac(plac[6].lon) : null
+}
 
-
-    maisons: plac
 };
 
 
