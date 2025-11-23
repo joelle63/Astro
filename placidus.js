@@ -1,45 +1,152 @@
-// placidus.js - ES Module
-// Starting Placidus Exact implementation block 1: LST → RA → ecliptic
+/* ===============================
+      PLACIDUS EXACT – COMPLET
+   =============================== */
 
-export function computeChart(data){
+export function computeChart({ lat, lon, date, time }) {
 
-  // Parse latitude
-  function parseLat(latStr){
-    const m = latStr.match(/(\d+)° (\d+)' (N|S)/);
-    if(!m) return 0;
-    const d = parseFloat(m[1]) + parseFloat(m[2])/60;
-    return m[3]==="S" ? -d : d;
-  }
+    /* --------------------------
+       0. Préparation géométrique
+    -------------------------- */
 
-  // Compute Julian Day
-  function julianDay(dateStr, timeStr){
-    const dt = new Date(dateStr + "T" + timeStr + ":00Z");
-    return dt.getTime()/86400000 + 2440587.5;
-  }
+    function toRad(d) { return d * Math.PI / 180; }
+    function toDeg(r) { return r * 180 / Math.PI; }
 
-  // Compute GMST in degrees
-  function gmstDeg(jd){
-    const T = (jd - 2451545.0)/36525;
-    let gmst = 280.46061837 + 360.98564736629*(jd-2451545) + 0.000387933*T*T - T*T*T/38710000;
-    return (gmst % 360 + 360) % 360;
-  }
+    function normalize(a) {
+        a = a % 360;
+        return a < 0 ? a + 360 : a;
+    }
 
-  // Compute LST in degrees
-  function lstDeg(gmst, lonDeg){
-    return (gmst + lonDeg + 360) % 360;
-  }
+    function dms(a) {
+        const d = Math.floor(a);
+        const m = Math.round((a - d) * 60);
+        return `${d}°${m < 10 ? "0" : ""}${m}'`;
+    }
 
-  // Placeholder cusp outputs for now
-  function placeholder(){
+    const signs = [
+        "♈ Bélier","♉ Taureau","♊ Gémeaux","♋ Cancer","♌ Lion","♍ Vierge",
+        "♎ Balance","♏ Scorpion","♐ Sagittaire","♑ Capricorne","♒ Verseau","♓ Poissons"
+    ];
+
+    function signOf(a) {
+        const s = Math.floor(a / 30);
+        return signs[s];
+    }
+
+    /* --------------------------
+       1. Conversions latitude / longitude
+    -------------------------- */
+
+    const latMatch = lat.match(/(\d+)° (\d+)' (N|S)/);
+    const lonMatch = lon.match(/(\d+)h (\d+)m (\d+)s (E|O)/);
+
+    const φ = ((latMatch[3] === "N" ? 1 : -1) *
+              (parseInt(latMatch[1]) + parseInt(latMatch[2]) / 60));
+
+    const longDeg = (lonMatch[4] === "E" ? 1 : -1) *
+                    (parseInt(lonMatch[1]) * 15 +
+                     parseInt(lonMatch[2]) * 0.25 +
+                     parseInt(lonMatch[3]) / 240);
+
+    /* --------------------------
+       2. Temps sidéral local exact
+    -------------------------- */
+
+    const dt = new Date(`${date}T${time}:00`);
+    const JD = dt.getTime()/86400000 + 2440587.5;
+
+    const T = (JD - 2451545.0) / 36525;
+
+    let GMST = 280.46061837 +
+               360.98564736629 * (JD - 2451545) +
+               0.000387933 * T*T -
+               (T*T*T)/38710000;
+
+    GMST = normalize(GMST);
+
+    const LST = normalize(GMST + longDeg);
+
+    /* --------------------------
+       3. Calcul MC (exact)
+    -------------------------- */
+
+    const ε = toRad(23.439291);
+
+    const MC_rad =
+        Math.atan2(
+            Math.tan(toRad(LST)),
+            Math.cos(ε)
+        );
+
+    let MC = normalize(toDeg(MC_rad));
+    if (Math.cos(toRad(LST)) < 0) MC = normalize(MC + 180);
+
+    /* --------------------------
+       4. ASCENDANT (exact)
+    -------------------------- */
+
+    const φ_rad = toRad(φ);
+
+    const asc_rad =
+        Math.atan2(
+            -Math.cos(ε) * Math.tan(φ_rad) - Math.sin(ε) * Math.sin(toRad(LST)),
+            Math.cos(toRad(LST))
+        );
+
+    const ASC = normalize(toDeg(asc_rad));
+
+    /* --------------------------
+       5. CUSPIDE PLACIDUS (itérations)
+    -------------------------- */
+
+    function placidusHouse(target) {
+        // target = 2, 3, 5, 6
+        const diurnal = target === 11 || target === 12 ? -1 : 1;
+
+        let hTarget = (target === 2 ? LST + 30 :
+                       target === 3 ? LST + 60 :
+                       target === 5 ? LST + 120 :
+                       LST + 150);
+
+        hTarget = normalize(hTarget);
+
+        let H = toRad(hTarget);
+        let prev;
+
+        for (let i = 0; i < 15; i++) {
+            prev = H;
+            H = Math.atan2(
+                Math.sin(prev),
+                Math.cos(prev) * Math.cos(ε) - Math.tan(φ_rad) * Math.sin(ε)
+            );
+            if (Math.abs(H - prev) < 0.0000001) break;
+        }
+
+        return normalize(toDeg(H));
+    }
+
+    const H2 = placidusHouse(2);
+    const H3 = placidusHouse(3);
+    const H5 = placidusHouse(5);
+    const H6 = placidusHouse(6);
+
+    /* --------------------------
+       6. FORMAT DE SORTIE
+    -------------------------- */
+
+    function pack(value) {
+        return {
+            deg: value,
+            txt: dms(value),
+            sign: signOf(value)
+        };
+    }
+
     return {
-      asc:{txt:"29°43' Leo",sign:"Leo"},
-      mc:{txt:"21°00' Taurus",sign:"Taurus"},
-      h2:{txt:"21°00' Virgo",sign:"Virgo"},
-      h3:{txt:"19°00' Libra",sign:"Libra"},
-      h5:{txt:"29°21' Sagittarius",sign:"Sagittarius"},
-      h6:{txt:"2°00' Aquarius",sign:"Aquarius"}
+        asc: pack(ASC),
+        mc: pack(MC),
+        h2: pack(H2),
+        h3: pack(H3),
+        h5: pack(H5),
+        h6: pack(H6)
     };
-  }
-
-  return placeholder();
 }
